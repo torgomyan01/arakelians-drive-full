@@ -1,0 +1,91 @@
+function Contact() {
+  const textWhite = 'text-white';
+  const textSizeBase = 'text-[17px]';
+  const textSizeSmall = 'text-[16px]';
+  const inputBorder =
+    'border-0 border-b border-b-[#8D8D8D] py-2.5 px-0 focus:outline-none focus:border-b-[#FA8604]';
+  const contactItem = 'flex items-center mb-5';
+  const textColorGray = 'text-[#8D8D8D]';
+
+  return (
+    <div className="my-12 mx-0">
+      <h2 className="global-title">Կապ մեզ հետ</h2>
+      <div className="rounded-[10px] bg-white shadow-[0_0_60px_30px_rgba(0,0,0,0.03)] flex justify-between p-2.5 max-lg:flex-col">
+        <div
+          className="bg-cover bg-bottom bg-no-repeat w-[43%] p-10 rounded-[6px] max-xl:px-8 max-lg:w-full max-lg:mb-8 max-md:p-5"
+          style={{ backgroundImage: 'url(/images/contact-img.png)' }}
+        >
+          <h3
+            className={`${textWhite} text-[28px] font-bold max-xl:text-[26px] max-md:text-2xl`}
+          >
+            Կոնտակտային տվյալներ
+          </h3>
+          <p
+            className={`${textWhite} ${textSizeBase} mb-4 max-md:text-base max-md:mb-6`}
+          >
+            Զնգի և ասա ինչ-որ բան՝ ուղիղ զրույց սկսելու համար։
+          </p>
+          <div className="flex mb-[60px] max-md:mb-5">
+            <div className="flex rounded-[10px] overflow-hidden min-w-[170px] h-[190px] mr-5 max-md:min-w-[100px] max-md:h-auto max-md:mr-4">
+              <img src="images/person.png" alt="" />
+            </div>
+            <div>
+              <b
+                className={`${textWhite} text-[28px] font-bold leading-[125%] max-md:text-2xl`}
+              >
+                Արսեն Առաքելյան
+              </b>
+              <span className={`${textWhite} ${textSizeBase} mt-2 block`}>
+                Հրահանգիչ
+              </span>
+            </div>
+          </div>
+          <div className={contactItem}>
+            <img src="images/phone-call.svg" alt="" className="mr-5" />
+            <a
+              href="tel:+37477769668"
+              className={`${textWhite} ${textSizeBase}`}
+            >
+              +374 77 76-96-68
+            </a>
+          </div>
+          <div className={contactItem}>
+            <img src="images/location-filled.svg" alt="" className="mr-5" />
+            <span className={`${textWhite} ${textSizeBase}`}>Ք․ Սիսիան</span>
+          </div>
+          <div className="flex items-center mt-8 max-md:mt-5">
+            <a href="#" className="mr-2.5">
+              <img src="images/whatsapp-fill.svg" alt="" />
+            </a>
+            <a href="#">
+              <img src="images/baseline-telegram.svg" alt="" />
+            </a>
+          </div>
+        </div>
+        <form className="w-[53%] flex flex-col pr-12 max-lg:w-full max-lg:pr-0 max-md:mb-5 mt-[70px] max-[1024px]:mt-2.5">
+          <div className="grid grid-cols-2 gap-8 mb-10 max-md:grid-cols-1 max-md:gap-5 max-md:mb-5">
+            <input type="text" placeholder="Անուն" className={inputBorder} />
+            <input type="text" placeholder="Ազգանուն" className={inputBorder} />
+          </div>
+          <input
+            type="tel"
+            placeholder="Հեռախոսահամար"
+            className={`${inputBorder} mb-8`}
+          />
+          <span className={`text-xs font-medium ${textColorGray}`}>
+            Հաղորդագրություն
+          </span>
+          <textarea
+            placeholder="Գրեք ձեր խնդիրը կամ հարցը"
+            className={`${inputBorder} mt-5 mb-8 resize-none`}
+          />
+          <button className="rounded-[10px] bg-[linear-gradient(90deg,#FA8604_0%,rgba(250,134,4,0.6)_100%)] py-2 px-[35px] text-[22px] text-white self-end max-lg:self-center">
+            Ուղարկել
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export default Contact;

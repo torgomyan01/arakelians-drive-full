@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+model chat_inquiry {
+  id              Int      @id @default(autoincrement())
+  selected_service String?  @db.VarChar(255)
+  website_type    String?  @db.VarChar(255)
+  budget          String?  @db.VarChar(255)
+  timeline        String?  @db.VarChar(255)
+  additional_info String?  @db.Text
+  name            String?  @db.VarChar(255)
+  email           String?  @db.VarChar(255)
+  phone           String?  @db.VarChar(255)
+  called          Boolean  @default(false)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+}
+
+model scheduled_call {
+  id              Int      @id @default(autoincrement())
+  name            String   @db.VarChar(255)
+  email           String   @db.VarChar(255)
+  phone           String   @db.VarChar(255)
+  scheduled_date  String   @db.VarChar(10)
+  scheduled_time  String   @db.VarChar(8)
+  called          Boolean  @default(false)
+  email_sent      Boolean  @default(false)
+  notes           String?  @db.Text
+  discount_percentage Int?  @default(0)
+  discount_eligible   Boolean @default(false)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+}
+
+model calculator_submission {
+  id                Int      @id @default(autoincrement())
+  website_type      String?  @db.VarChar(255)
+  pages_count       Int?
+  design_style      String?  @db.VarChar(255)
+  features          String?  @db.Text
+  cms_required      Boolean  @default(false)
+  ecommerce         Boolean  @default(false)
+  payment_systems   String?  @db.VarChar(255)
+  mobile_app        Boolean  @default(false)
+  seo_optimization  Boolean  @default(false)
+  content_management Boolean @default(false)
+  estimated_price   Float?
+  name              String   @db.VarChar(255)
+  email             String   @db.VarChar(255)
+  phone             String   @db.VarChar(255)
+  contacted         Boolean  @default(false)
+  notes             String?  @db.Text
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+}
