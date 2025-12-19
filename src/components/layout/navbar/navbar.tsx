@@ -2,7 +2,9 @@
 
 import { SITE_URL } from '@/utils/consts';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 
 const navItems = [
   {
@@ -11,7 +13,7 @@ const navItems = [
   },
   {
     label: 'ՃԵԿ',
-    href: SITE_URL.QUIZ,
+    href: SITE_URL.RULES,
   },
   {
     label: 'Թեստեր',
@@ -29,6 +31,8 @@ const navItems = [
 
 function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
   const glassEffect = 'rounded-[50px] bg-black/8 backdrop-blur-xs';
   const linkBase =
     'text-[#1A2229] transition-colors duration-300 hover:text-[#FA8604]';
@@ -46,6 +50,25 @@ function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.classList.add('overflow');
+    } else {
+      document.body.classList.remove('overflow');
+    }
+    return () => {
+      document.body.classList.remove('overflow');
+    };
+  }, [isMenuOpen]);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
+
   return (
     <>
       <nav
@@ -58,28 +81,56 @@ function Navbar() {
               href={SITE_URL.HOME}
               className={`flex items-center ${glassEffect} px-2.5 py-2`}
             >
-              <img src="images/logo.svg" alt="" className="w-[39px]" />
+              <Image src="/images/logo.svg" alt="logo" width={39} height={39} />
               <span className={`${linkBase} logo-text ml-4 mr-2.5`}>
                 Գլխավոր
               </span>
             </Link>
 
             <ul
-              className={`header-menu flex items-center ${glassEffect} px-8 py-4 max-md:fixed max-md:top-[72px] max-md:left-0 max-md:flex-col max-md:w-full max-md:h-[calc(100vh-87px)] max-md:rounded-none max-md:bg-white max-md:opacity-0 max-md:scale-0`}
+              className={`header-menu flex items-center ${glassEffect} px-8 py-4 max-md:fixed max-md:top-[68px] max-md:left-0 max-md:flex-col max-md:w-full max-md:h-[calc(100dvh-68px)] max-md:rounded-none max-md:bg-gradient-to-b max-md:from-white max-md:via-white max-md:to-gray-50 max-md:shadow-2xl max-md:transition-all max-md:duration-300 max-md:ease-in-out max-md:z-20 max-md:overflow-y-auto max-md:py-8 max-md:backdrop-blur-none max-md:bg-black/0 ${
+                isMenuOpen
+                  ? 'open max-md:opacity-100 max-md:scale-100 max-md:translate-x-0'
+                  : 'max-md:opacity-0 max-md:scale-95 max-md:-translate-x-full'
+              }`}
             >
-              {navItems.map((item) => (
-                <li key={item.href} className="mr-4 max-md:mb-5 last:mr-0">
-                  <Link
-                    href={item.href}
-                    className={`${linkBase} text-base max-md:text-2xl max-md:text-white`}
+              {navItems.map((item) => {
+                const isActive =
+                  pathname === item.href ||
+                  pathname.startsWith(item.href + '/');
+                return (
+                  <li
+                    key={item.href}
+                    className="mr-4 max-md:mb-4 max-md:mr-0 last:mr-0 max-md:w-full max-md:text-center"
                   >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
+                    <Link
+                      href={item.href}
+                      onClick={(e) => {
+                        // Only close menu on mobile
+                        if (window.innerWidth < 768) {
+                          closeMenu();
+                        }
+                      }}
+                      className={`${linkBase} ${
+                        isActive ? 'text-[#FA8604]' : ''
+                      } text-base max-md:text-xl max-md:text-[#1A2229] max-md:font-semibold max-md:py-3 max-md:block max-md:hover:bg-[#FA8604]/10 max-md:rounded-xl max-md:px-6 max-md:transition-all max-md:duration-200 max-md:border-l-4 max-md:border-transparent max-md:hover:text-[#FA8604] ${
+                        isActive
+                          ? 'max-md:border-[#FA8604] max-md:bg-[#FA8604]/5'
+                          : ''
+                      }`}
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
 
-            <div className="drop-menu hidden max-md:flex">
+            <div
+              className={`drop-menu hidden max-md:flex z-30 ${isMenuOpen ? 'is-active' : ''}`}
+              onClick={toggleMenu}
+              aria-label="Toggle menu"
+            >
               <span className="line"></span>
               <span className="line"></span>
               <span className="line"></span>
@@ -87,7 +138,7 @@ function Navbar() {
           </div>
         </div>
       </nav>
-      <div className="w-full h-[94px]"></div>
+      <div className="w-full h-[70px] sm:h-[94px]"></div>
     </>
   );
 }

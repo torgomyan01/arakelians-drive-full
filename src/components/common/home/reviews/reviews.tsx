@@ -69,9 +69,7 @@ function Reviews() {
 
   return (
     <div className="my-[80px] text-center max-md:my-[40px]">
-      <h2 className="global-title">
-        Իրավական Խորհրդեքներ և Հաճախորդյան Պատմություններ
-      </h2>
+      <h2 className="global-title">Հաճախորդյան Պատմություններ</h2>
 
       <div className="swiper mySwiper ">
         <div className="swiper-wrapper">

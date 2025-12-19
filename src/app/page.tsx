@@ -6,13 +6,12 @@ import Reviews from '@/components/common/home/reviews/reviews';
 import WeLearning from '@/components/common/home/we-learning/we-learning';
 import Contact from '@/components/layout/contact/contact';
 import Footer from '@/components/layout/footer/footer';
+import MainTemplate from '@/components/layout/main-template/main-template';
 import Navbar from '@/components/layout/navbar/navbar';
 
 export default function Page() {
   return (
-    <>
-      <Navbar />
-
+    <MainTemplate>
       <Header />
 
       <main className="overflow-hidden">
@@ -27,9 +26,7 @@ export default function Page() {
         <Faq />
 
         <Contact />
-
-        <Footer />
       </main>
-    </>
+    </MainTemplate>
   );
 }

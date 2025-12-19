@@ -71,7 +71,7 @@ function Header() {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="text-[#1A2229] relative z-1 w-full max-w-[610px] ml-[140px] text-[90px] font-extrabold leading-[100%]! max-[1100px]:ml-[60px] max-[1100px]:text-[64px] max-[767px]:ml-5 max-[767px]:max-w-[280px] max-[767px]:text-[42px]"
+          className="text-[#1A2229] relative z-1 pt-5 sm:pt-0 w-full max-w-[610px] ml-[140px] text-[90px] font-extrabold leading-[100%]! max-[1100px]:ml-[60px] max-[1100px]:text-[64px] max-[767px]:ml-5 max-[767px]:max-w-[280px] max-[767px]:text-[42px]"
         >
           {letters.map((letter, index) => (
             <motion.span

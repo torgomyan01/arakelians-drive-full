@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Armenian:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100..900&display=swap');
 
 ::-webkit-scrollbar {
   width: 5px;
@@ -44,19 +44,6 @@ html {
   }
 }
 
-body,
-html {
-  &.overflow {
-    overflow: hidden;
-  }
-}
-
-* {
-  font-family: 'Noto Sans Armenian', sans-serif;
-  font-optical-sizing: auto;
-  letter-spacing: -0.5px;
-}
-
 a {
   text-decoration: none;
   transition: 0.3s;
@@ -93,10 +80,6 @@ main {
   @media (max-width: 767px) {
     padding-top: 20px;
   }
-}
-
-h1 {
-  font-family: 'Russo One', sans-serif;
 }
 
 .car-img {
@@ -137,7 +120,7 @@ h1 {
   align-items: center;
   gap: 14px;
   padding: 16px;
-  background: #f5f5f5;
+  background: var(--radio-bg-color, #f5f5f5);
   border-radius: 10px;
   cursor: pointer;
 }
@@ -159,8 +142,8 @@ h1 {
 
 .radio-circle::after {
   content: '';
-  width: 10px;
-  height: 10px;
+  width: 9px;
+  height: 9px;
   background: #fa8604;
   border-radius: 50%;
   opacity: 0;
@@ -173,7 +156,6 @@ h1 {
 
 .radio-text {
   font-size: 14px;
-  color: #1f2937;
 }
 
 .circle-img {
@@ -191,10 +173,27 @@ h1 {
   top: -50px;
   left: 0;
   width: 100%;
+
+  @media (max-width: 767px) {
+    top: 160px;
+  }
 }
 
 .header-menu {
   transition: 0.3s;
+
+  // Desktop - always visible, original styling
+  @media (min-width: 768px) {
+    position: relative;
+    opacity: 1;
+    transform: none;
+    display: flex;
+
+    &.open {
+      opacity: 1;
+      transform: none;
+    }
+  }
 }
 
 .container-full {
@@ -216,12 +215,17 @@ h1 {
     }
   }
 }
+
+// Mobile menu open styles - only apply on mobile
 .header-menu.open {
-  transform: scale(1);
-  border-top: 1px solid #222;
-  opacity: 1;
-  a {
-    color: #000;
+  @media (max-width: 767px) {
+    transform: scale(1);
+    border-top: 1px solid rgba(34, 34, 34, 0.1);
+    opacity: 1;
+
+    a {
+      color: #1a2229;
+    }
   }
 }
 
@@ -255,7 +259,7 @@ h1 {
   margin-bottom: 40px;
   font-size: 30px;
   text-align: left;
-  font-weight: 900;
+  font-weight: 700;
   &:after {
     content: '';
     width: 57px;
@@ -311,6 +315,45 @@ h1 {
   -ms-transform: translateY(1px) rotate(-45deg);
   -o-transform: translateY(1px) rotate(-45deg);
   transform: translateY(1px) rotate(-45deg);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeInUp 0.3s ease-out forwards;
+}
+
+// Mobile menu items animation - only on mobile
+.header-menu.open li {
+  @media (max-width: 767px) {
+    opacity: 0;
+    animation: fadeInUp 0.4s ease-out forwards;
+
+    &:nth-child(1) {
+      animation-delay: 0.05s;
+    }
+    &:nth-child(2) {
+      animation-delay: 0.1s;
+    }
+    &:nth-child(3) {
+      animation-delay: 0.15s;
+    }
+    &:nth-child(4) {
+      animation-delay: 0.2s;
+    }
+    &:nth-child(5) {
+      animation-delay: 0.25s;
+    }
+  }
 }
 
 @media (max-width: 1024px) {

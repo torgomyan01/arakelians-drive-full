@@ -74,7 +74,7 @@ function AboutUs() {
     'rounded-[20px] bg-white shadow-[0_0_34px_rgba(0,0,0,0.16)] p-5 mb-10 flex flex-col items-center justify-center min-h-[190px] max-md:mb-5';
   const cardTitle =
     'text-[30px] text-[#FA8604] mb-4 font-light text-center max-lg:text-2xl';
-  const cardValue = 'font-extrabold text-[30px] text-black';
+  const cardValue = 'font-bold text-[30px] text-black';
   const textColorDark = 'text-[#222]';
 
   // Countdown timer logic with localStorage
