@@ -73,7 +73,7 @@ function Navbar() {
     <>
       <nav
         id="header"
-        className={`top-0 w-full fixed ${isScrolled ? 'shadow' : ''} z-10 py-5 max-md:py-2.5 bg-white`}
+        className={`top-0 w-full fixed ${isScrolled ? 'shadow' : ''} z-100 py-5 max-md:py-2.5 bg-white`}
       >
         <div className="container">
           <div className="flex items-center justify-between">
