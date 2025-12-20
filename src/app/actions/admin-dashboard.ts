@@ -19,11 +19,11 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       registrationsCount,
       contactsCount,
     ] = await Promise.all([
-      prisma.user.count(),
-      prisma.question.count(),
-      prisma.questionComment.count(),
-      prisma.registration.count(),
-      prisma.contact.count(),
+      prisma.user.count().catch(() => 0),
+      prisma.question.count().catch(() => 0),
+      prisma.questionComment.count().catch(() => 0),
+      prisma.registration.count().catch(() => 0),
+      prisma.contact.count().catch(() => 0),
     ]);
 
     return {
