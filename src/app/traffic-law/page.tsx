@@ -242,7 +242,7 @@ export default function TrafficLawPage() {
                   key={item.id}
                   className="group relative bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100 hover:border-[#FA8604] p-6"
                 >
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-start gap-4 flex-col md:flex-row">
                     {/* Category Badge */}
                     <div className="flex-shrink-0">
                       <span

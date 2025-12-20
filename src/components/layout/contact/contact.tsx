@@ -1,3 +1,7 @@
+'use client';
+
+import { useState } from 'react';
+
 function Contact() {
   const textWhite = 'text-white';
   const textSizeBase = 'text-[17px]';
@@ -6,6 +10,66 @@ function Contact() {
     'border-0 border-b border-b-[#8D8D8D] py-2.5 px-0 focus:outline-none focus:border-b-[#FA8604]';
   const contactItem = 'flex items-center mb-5';
   const textColorGray = 'text-[#8D8D8D]';
+
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    phone: '',
+    message: '',
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      if (!formData.firstName.trim() || !formData.lastName.trim()) {
+        setError('Խնդրում ենք լրացնել բոլոր դաշտերը');
+        setLoading(false);
+        return;
+      }
+
+      if (!formData.phone.trim()) {
+        setError('Հեռախոսահամարը պարտադիր է');
+        setLoading(false);
+        return;
+      }
+
+      if (!formData.message.trim()) {
+        setError('Հաղորդագրությունը պարտադիր է');
+        setLoading(false);
+        return;
+      }
+
+      const { createContact } = await import('@/app/actions/contacts');
+      const result = await createContact(
+        formData.firstName,
+        formData.lastName,
+        formData.phone,
+        formData.message
+      );
+
+      if (result.success) {
+        setFormData({
+          firstName: '',
+          lastName: '',
+          phone: '',
+          message: '',
+        });
+        alert('Շնորհակալություն! Մենք շուտով կապ կհաստատենք ձեզ հետ:');
+      } else {
+        setError(result.error || 'Սխալ է տեղի ունեցել');
+      }
+    } catch (err: any) {
+      console.error('Contact form error:', err);
+      setError(err.message || 'Սխալ է տեղի ունեցել');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="my-12 mx-0">
@@ -62,14 +126,45 @@ function Contact() {
             </a>
           </div>
         </div>
-        <form className="w-[53%] flex flex-col pr-12 max-lg:w-full max-lg:pr-0 max-md:mb-5 mt-[70px] max-[1024px]:mt-2.5">
+        <form
+          onSubmit={handleSubmit}
+          className="w-[53%] flex flex-col pr-12 max-lg:w-full max-lg:pr-0 max-md:mb-5 mt-[70px] max-[1024px]:mt-2.5"
+        >
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-[10px] text-sm">
+              {error}
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-8 mb-10 max-md:grid-cols-1 max-md:gap-5 max-md:mb-5">
-            <input type="text" placeholder="Անուն" className={inputBorder} />
-            <input type="text" placeholder="Ազգանուն" className={inputBorder} />
+            <input
+              type="text"
+              placeholder="Անուն"
+              value={formData.firstName}
+              onChange={(e) =>
+                setFormData({ ...formData, firstName: e.target.value })
+              }
+              required
+              className={inputBorder}
+            />
+            <input
+              type="text"
+              placeholder="Ազգանուն"
+              value={formData.lastName}
+              onChange={(e) =>
+                setFormData({ ...formData, lastName: e.target.value })
+              }
+              required
+              className={inputBorder}
+            />
           </div>
           <input
             type="tel"
             placeholder="Հեռախոսահամար"
+            value={formData.phone}
+            onChange={(e) =>
+              setFormData({ ...formData, phone: e.target.value })
+            }
+            required
             className={`${inputBorder} mb-8`}
           />
           <span className={`text-xs font-medium ${textColorGray}`}>
@@ -77,10 +172,19 @@ function Contact() {
           </span>
           <textarea
             placeholder="Գրեք ձեր խնդիրը կամ հարցը"
+            value={formData.message}
+            onChange={(e) =>
+              setFormData({ ...formData, message: e.target.value })
+            }
+            required
             className={`${inputBorder} mt-5 mb-8 resize-none`}
           />
-          <button className="rounded-[10px] bg-[linear-gradient(90deg,#FA8604_0%,rgba(250,134,4,0.6)_100%)] py-2 px-[35px] text-[22px] text-white self-end max-lg:self-center">
-            Ուղարկել
+          <button
+            type="submit"
+            disabled={loading}
+            className="rounded-[10px] bg-[linear-gradient(90deg,#FA8604_0%,rgba(250,134,4,0.6)_100%)] py-2 px-[35px] text-[22px] text-white self-end max-lg:self-center disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Ուղարկվում է...' : 'Ուղարկել'}
           </button>
         </form>
       </div>

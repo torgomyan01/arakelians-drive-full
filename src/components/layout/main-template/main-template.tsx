@@ -1,5 +1,6 @@
 import Footer from '../footer/footer';
 import Navbar from '../navbar/navbar';
+import CallButton from '../call-button/call-button';
 
 function MainTemplate({ children }: { children: React.ReactNode }) {
   return (
@@ -9,6 +10,7 @@ function MainTemplate({ children }: { children: React.ReactNode }) {
       {children}
 
       <Footer />
+      <CallButton />
     </>
   );
 }

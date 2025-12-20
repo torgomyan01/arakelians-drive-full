@@ -1,6 +1,6 @@
 import { withAuth } from 'next-auth/middleware';
 import { NextResponse, type NextRequest } from 'next/server';
-import * as UAParser from 'ua-parser-js'; // Corrected import
+import * as UAParser from 'ua-parser-js';
 
 export default withAuth(
   function middleware(request: NextRequest) {
@@ -45,14 +45,8 @@ export default withAuth(
             return false;
           }
           const user = token as any;
-          return (
-            user.type === 'admin' ||
-            user.role === 'admin' ||
-            (Array.isArray(user.role) &&
-              user.role.some((r: string) =>
-                String(r).toLowerCase().includes('admin')
-              ))
-          );
+          // Check if user has admin role
+          return user?.role === 'admin';
         }
 
         // Regular user routes require NextAuth token

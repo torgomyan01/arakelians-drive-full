@@ -184,7 +184,7 @@ export default async function RulesSectionPage({ params }: PageProps) {
 
           {/* Quick Tips Section */}
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 mb-8 border border-blue-100">
-            <div className="flex items-start gap-4">
+            <div className="flex items-start gap-4 flex-col md:flex-row">
               <div className="flex-shrink-0">
                 <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
                   <span className="text-2xl">💡</span>

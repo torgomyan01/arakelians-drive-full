@@ -51,3 +51,36 @@ model QuestionComment {
 
   @@map("question_comments")
 }
+
+model User {
+  id            Int      @id @default(autoincrement())
+  email         String   @unique @db.VarChar(255)
+  name          String?  @db.VarChar(255)
+  password      String   @db.VarChar(255)
+  role          String   @default("user") @db.VarChar(50)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Registration {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(255)
+  phone       String   @db.VarChar(255)
+  hasDiscount Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@map("registrations")
+}
+
+model Contact {
+  id        Int      @id @default(autoincrement())
+  firstName String   @db.VarChar(255)
+  lastName  String   @db.VarChar(255)
+  phone     String   @db.VarChar(255)
+  message   String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@map("contacts")
+}

@@ -88,7 +88,7 @@ function Header() {
         <div className="absolute bottom-10 right-10 flex flex-col items-end">
           <img src="/images/right-arrow.svg" alt="" />
           <motion.b
-            className={`${textColorDark} text-[34px] font-bold max-[767px]:text-2xl cursor-pointer`}
+            className={`${textColorDark} text-[34px] font-bold max-[767px]:text-2xl cursor-pointer z-10`}
             animate={{
               scale: [1, 1.1, 1],
               x: [0, -5, 5, -5, 5, 0],

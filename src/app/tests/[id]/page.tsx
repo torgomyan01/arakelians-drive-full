@@ -317,15 +317,6 @@ export default function TestPage() {
                       հետ
                     </button>
 
-                    {!testCompleted && (
-                      <button
-                        onClick={handleSubmitTest}
-                        className="inline-flex rounded-[30px] cursor-pointer bg-[linear-gradient(90deg,#FA8604_0%,rgba(250,134,4,0.6)_100%)] px-6 py-2 text-[17px] text-white hover:opacity-90 transition-opacity"
-                      >
-                        Ավարտել թեստը
-                      </button>
-                    )}
-
                     <button
                       onClick={() => {
                         if (selectedQuestionIndex < questions.length - 1) {
@@ -342,6 +333,17 @@ export default function TestPage() {
                         className="ml-2.5"
                       />
                     </button>
+                  </div>
+
+                  <div className="flex justify-center">
+                    {!testCompleted && (
+                      <button
+                        onClick={handleSubmitTest}
+                        className="inline-flex rounded-[30px] cursor-pointer bg-[linear-gradient(90deg,#FA8604_0%,rgba(250,134,4,0.6)_100%)] px-6 py-2 text-[17px] text-white hover:opacity-90 transition-opacity"
+                      >
+                        Ավարտել թեստը
+                      </button>
+                    )}
                   </div>
                 </div>
 

@@ -146,14 +146,38 @@ function AboutUs() {
     setFormData({ name: '', phone: '' });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you can add API call to submit the form
-    console.log('Form submitted:', formData);
-    // Close modal after submission
-    handleModalClose();
-    // Optionally show success message
-    alert('Շնորհակալություն! Մենք շուտով կապ կհաստատենք ձեզ հետ:');
+
+    try {
+      // Check if registration is within discount time (10 minutes)
+      const hasDiscount = timeLeft > 0;
+
+      // Import and call server action
+      const { createRegistration } =
+        await import('@/app/actions/registrations');
+      const result = await createRegistration(
+        formData.name,
+        formData.phone,
+        hasDiscount
+      );
+
+      if (result.success) {
+        // Close modal after submission
+        handleModalClose();
+        // Show success message
+        alert(
+          hasDiscount
+            ? 'Շնորհակալություն! Դուք գրանցվել եք զեղչով: Մենք շուտով կապ կհաստատենք ձեզ հետ:'
+            : 'Շնորհակալություն! Մենք շուտով կապ կհաստատենք ձեզ հետ:'
+        );
+      } else {
+        alert(result.error || 'Սխալ է տեղի ունեցել');
+      }
+    } catch (error: any) {
+      console.error('Registration error:', error);
+      alert('Սխալ է տեղի ունեցել: ' + (error.message || 'Անհայտ սխալ'));
+    }
   };
 
   return (

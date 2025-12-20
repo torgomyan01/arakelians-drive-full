@@ -34,7 +34,7 @@ function WeLearning() {
   };
 
   return (
-    <div className="my-[100px] max-[1024px]:my-[60px] max-[767px]:my-5">
+    <div className="my-[70px] max-[1024px]:my-[60px] max-[767px]:my-5">
       <h2 className="global-title none relative inline-flex max-[1024px]:max-w-[230px] max-[1024px]:text-2xl max-md:max-w-full max-md:text-[30px] max-md:mb-0">
         Սովորեցնում ենք
         <img

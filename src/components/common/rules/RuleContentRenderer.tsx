@@ -232,7 +232,7 @@ export default function RuleContentRenderer({
                 } transition-colors`}
                 onClick={() => subItems.length > 0 && toggleSection(groupIndex)}
               >
-                <div className="flex items-start gap-4">
+                <div className="flex items-start gap-4 flex-col md:flex-row">
                   {/* Number Badge */}
                   {mainItem.number && (
                     <div className="flex-shrink-0">

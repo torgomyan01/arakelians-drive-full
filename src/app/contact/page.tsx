@@ -9,7 +9,7 @@ function ContactPage() {
     <>
       <Navbar />
       <main className="overflow-hidden rounded-[20px]">
-        <div className="container mx-auto px-4 py-[60px] max-md:py-[40px]">
+        <div className="container mx-auto px-0! py-[60px] max-md:py-[40px]">
           <Contact />
         </div>
       </main>

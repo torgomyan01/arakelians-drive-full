@@ -1,6 +1,8 @@
-// import NextAuth from 'next-auth';
-// import { authOptions } from '@/lib/auth';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
-// const nextAuth = NextAuth(authOptions);
+export async function auth() {
+  return await getServerSession(authOptions);
+}
 
-// export const { auth, signIn, signOut } = nextAuth;
+export { authOptions };

@@ -11,6 +11,7 @@ import NextTopLoader from 'nextjs-toploader';
 import type { Metadata } from 'next';
 
 import { Providers } from '@/app/providers';
+import CallButton from '@/components/layout/call-button/call-button';
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
