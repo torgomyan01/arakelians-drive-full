@@ -19,6 +19,7 @@ export async function getLessonCategories() {
 
     return categories.map((category) => ({
       id: category.id,
+      name: category.name,
       questionCount: category._count.questions,
     }));
   } catch (error) {

@@ -158,7 +158,8 @@ export default function CommentsList({ comments }: CommentsListProps) {
               <option value="">Բոլորը</option>
               {uniqueQuestions.map((q) => (
                 <option key={q.id} value={q.id}>
-                  Հարցաշար {q.lessonCategoryId} • {q.jsonId}
+                  {q.lessonCategory?.name || `Հարցաշար ${q.lessonCategoryId}`} •{' '}
+                  {q.jsonId}
                 </option>
               ))}
             </select>
@@ -183,8 +184,9 @@ export default function CommentsList({ comments }: CommentsListProps) {
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <span className="text-sm font-medium text-[#FA8604]">
-                        Հարցաշար {group.question.lessonCategoryId} • ID:{' '}
-                        {group.question.jsonId}
+                        {group.question.lessonCategory?.name ||
+                          `Հարցաշար ${group.question.lessonCategoryId}`}{' '}
+                        • ID: {group.question.jsonId}
                       </span>
                       <span className="text-xs text-[#8D8D8D] bg-white px-2 py-1 rounded-[10px]">
                         {group.comments.length} մեկնաբանություն

@@ -10,6 +10,7 @@ import {
 
 interface LessonCategory {
   id: number;
+  name: string;
   questionCount: number;
 }
 
@@ -61,7 +62,7 @@ export default function QuestionSetSidebar({
               const category = categoryMap.get(id);
               return (
                 <MenuItem key={id} value={String(id)}>
-                  Հարցաշար {id}
+                  {category?.name || `Հարցաշար ${id}`}
                 </MenuItem>
               );
             })}
@@ -84,7 +85,7 @@ export default function QuestionSetSidebar({
                 'cursor-pointer hover:bg-white/40 '
               )}
             >
-              Հարցաշար {id}
+              {category?.name || `Հարցաշար ${id}`}
             </button>
           );
         })}

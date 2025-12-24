@@ -19,35 +19,56 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        try {
+          if (!credentials?.email || !credentials?.password) {
+            console.error('[NextAuth] Missing credentials');
+            return null;
+          }
+
+          console.log('[NextAuth] Attempting login for:', credentials.email);
+
+          const user = await prisma.user.findUnique({
+            where: {
+              email: credentials.email,
+            },
+          });
+
+          if (!user) {
+            console.error('[NextAuth] User not found:', credentials.email);
+            return null;
+          }
+
+          console.log('[NextAuth] User found:', {
+            id: user.id,
+            email: user.email,
+            role: user.role,
+          });
+
+          const isPasswordValid = await bcrypt.compare(
+            credentials.password,
+            user.password
+          );
+
+          if (!isPasswordValid) {
+            console.error(
+              '[NextAuth] Invalid password for:',
+              credentials.email
+            );
+            return null;
+          }
+
+          console.log('[NextAuth] Login successful for:', credentials.email);
+
+          return {
+            id: user.id.toString(),
+            email: user.email,
+            name: user.name || user.email,
+            role: user.role,
+          };
+        } catch (error) {
+          console.error('[NextAuth] Authorization error:', error);
           return null;
         }
-
-        const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email,
-          },
-        });
-
-        if (!user) {
-          return null;
-        }
-
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
-
-        if (!isPasswordValid) {
-          return null;
-        }
-
-        return {
-          id: user.id.toString(),
-          email: user.email,
-          name: user.name || user.email,
-          role: user.role,
-        };
       },
     }),
   ],

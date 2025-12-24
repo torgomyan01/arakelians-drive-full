@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { QuestionWithOptions } from '@/app/actions/admin-questions';
 import {
   createQuestion,
@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation';
 
 interface QuestionEditModalProps {
   question: QuestionWithOptions | null;
-  categories: { id: number; questionCount: number }[];
+  categories: { id: number; name: string; questionCount: number }[];
   onClose: () => void;
   isOpen: boolean;
 }
@@ -122,10 +122,7 @@ export default function QuestionEditModal({
     });
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const handleImageFile = useCallback(async (file: File) => {
     // Validate file type
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
     if (!allowedTypes.includes(file.type)) {
@@ -169,19 +166,57 @@ export default function QuestionEditModal({
       // Update form data with uploaded image path
       // Store only filename, not full path
       const filename = result.filename;
-      setFormData({ ...formData, img: filename });
+      setFormData((prev) => ({ ...prev, img: filename }));
     } catch (err: any) {
       setError(err.message || 'Նկարի բեռնումը ձախողվեց');
       setImagePreview(null);
     } finally {
       setUploadingImage(false);
     }
+  }, []);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await handleImageFile(file);
   };
 
   const handleRemoveImage = () => {
     setFormData({ ...formData, img: '' });
     setImagePreview(null);
   };
+
+  // Handle paste event for image upload
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handlePaste = async (e: ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      // Find image in clipboard
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.type.indexOf('image') !== -1) {
+          e.preventDefault();
+          const blob = item.getAsFile();
+          if (blob) {
+            // Convert blob to File object
+            const file = new File([blob], `pasted-image-${Date.now()}.png`, {
+              type: blob.type || 'image/png',
+            });
+            await handleImageFile(file);
+          }
+          break;
+        }
+      }
+    };
+
+    window.addEventListener('paste', handlePaste);
+    return () => {
+      window.removeEventListener('paste', handlePaste);
+    };
+  }, [isOpen, handleImageFile]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -342,7 +377,7 @@ export default function QuestionEditModal({
                 >
                   {categories.map((cat) => (
                     <option key={cat.id} value={cat.id}>
-                      Հարցաշար {cat.id}
+                      {cat.name}
                     </option>
                   ))}
                 </select>

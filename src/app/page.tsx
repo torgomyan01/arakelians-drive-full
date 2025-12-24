@@ -8,11 +8,17 @@ import Contact from '@/components/layout/contact/contact';
 import Footer from '@/components/layout/footer/footer';
 import MainTemplate from '@/components/layout/main-template/main-template';
 import Navbar from '@/components/layout/navbar/navbar';
+import { getSetting } from '@/app/actions/admin-settings';
 
-export default function Page() {
+export default async function Page() {
+  const phoneNumber = (await getSetting('phone_number')) || '+374 77 76-96-68';
+  const address = (await getSetting('address')) || 'Ք․ Սիսիան';
+  const telegram = await getSetting('telegram');
+  const whatsapp = await getSetting('whatsapp');
+
   return (
     <MainTemplate>
-      <Header />
+      <Header phoneNumber={phoneNumber} address={address} />
 
       <main className="overflow-hidden">
         <WeLearning />
@@ -25,7 +31,12 @@ export default function Page() {
 
         <Faq />
 
-        <Contact />
+        <Contact
+          phoneNumber={phoneNumber}
+          address={address}
+          telegram={telegram || undefined}
+          whatsapp={whatsapp || undefined}
+        />
       </main>
     </MainTemplate>
   );

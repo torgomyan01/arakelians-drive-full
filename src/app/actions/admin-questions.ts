@@ -2,6 +2,9 @@
 
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { unlink } from 'fs/promises';
+import { join } from 'path';
+import { existsSync } from 'fs';
 
 export interface QuestionWithOptions {
   id: number;
@@ -204,6 +207,36 @@ export async function updateQuestion(
 
 export async function deleteQuestion(id: number) {
   try {
+    // Get question first to check if it has an image
+    const questionToDelete = await prisma.question.findUnique({
+      where: { id },
+      select: { img: true },
+    });
+
+    if (!questionToDelete) {
+      return { success: false, error: 'Հարցը չի գտնվել' };
+    }
+
+    // Delete the image file if it exists
+    if (questionToDelete.img) {
+      try {
+        const imagePath = join(
+          process.cwd(),
+          'public',
+          'lessons',
+          'images',
+          questionToDelete.img
+        );
+        if (existsSync(imagePath)) {
+          await unlink(imagePath);
+        }
+      } catch (imageError: any) {
+        // Log error but don't fail the deletion if image deletion fails
+        console.error('Error deleting image file:', imageError);
+      }
+    }
+
+    // Delete the question from database
     await prisma.question.delete({
       where: { id },
     });
@@ -233,6 +266,7 @@ export async function getLessonCategories() {
 
     return categories.map((category) => ({
       id: category.id,
+      name: category.name,
       questionCount: category._count.questions,
     }));
   } catch (error) {

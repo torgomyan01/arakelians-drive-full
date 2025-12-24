@@ -10,6 +10,7 @@ datasource db {
 
 model LessonCategory {
   id        Int       @id @default(autoincrement())
+  name      String    @db.VarChar(255)
   questions Question[]
 
   @@map("lesson_categories")
@@ -83,4 +84,13 @@ model Contact {
   createdAt DateTime @default(now())
 
   @@map("contacts")
+}
+
+model Setting {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique @db.VarChar(255)
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+
+  @@map("settings")
 }

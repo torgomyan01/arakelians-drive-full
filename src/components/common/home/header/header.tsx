@@ -2,7 +2,15 @@
 
 import { motion, Variants } from 'framer-motion';
 
-function Header() {
+interface HeaderProps {
+  phoneNumber?: string;
+  address?: string;
+}
+
+function Header({
+  phoneNumber = '093-77-31-41',
+  address = 'Ք․ Սիսիան',
+}: HeaderProps) {
   const textColorDark = 'text-[#222]';
   const title = 'ARAKELIANS DRIVE';
   const letters = title.split('');
@@ -101,11 +109,9 @@ function Header() {
             }}
             whileHover={{ scale: 1.15 }}
           >
-            093-77-31-41
+            {phoneNumber}
           </motion.b>
-          <span className={`${textColorDark} text-base`}>
-            Ք․ Սիսյան Գնունի Փ․ 34 տ․
-          </span>
+          <span className={`${textColorDark} text-base`}>{address}</span>
         </div>
       </div>
     </div>

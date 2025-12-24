@@ -33,6 +33,20 @@ function Footer() {
           </span>
         </div>
       </div>
+      <div className="container mt-6!">
+        <div className="flex items-center justify-end">
+          <p className="text-[#8D8D8D] text-base">
+            Կայքը պատրաստված է{' '}
+            <Link
+              href="https://torgomyan-studio.am"
+              className="text-[#FA8604] text-base"
+            >
+              Torgomyan Studio
+            </Link>{' '}
+            կողմից
+          </p>
+        </div>
+      </div>
     </footer>
   );
 }

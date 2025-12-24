@@ -6,7 +6,7 @@ import QuestionEditModal from './question-edit-modal';
 
 interface QuestionsListProps {
   questions: QuestionWithOptions[];
-  categories: { id: number; questionCount: number }[];
+  categories: { id: number; name: string; questionCount: number }[];
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -97,7 +97,7 @@ export default function QuestionsList({
               <option value="">Բոլորը</option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
-                  Հարցաշար {cat.id} ({cat.questionCount})
+                  {cat.name} ({cat.questionCount})
                 </option>
               ))}
             </select>
@@ -120,8 +120,10 @@ export default function QuestionsList({
                 <div className="flex-1">
                   <div className="flex items-center gap-4 mb-2">
                     <span className="text-sm text-[#8D8D8D]">
-                      Հարցաշար {question.lessonCategoryId} • ID:{' '}
-                      {question.jsonId}
+                      {categories.find(
+                        (c) => c.id === question.lessonCategoryId
+                      )?.name || `Հարցաշար ${question.lessonCategoryId}`}{' '}
+                      • ID: {question.jsonId}
                     </span>
                   </div>
                   <h3 className="text-lg font-semibold text-[#1A2229] mb-3">

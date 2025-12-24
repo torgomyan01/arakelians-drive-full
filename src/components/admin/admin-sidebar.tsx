@@ -21,6 +21,10 @@ const menuItems: MenuItem[] = [
     href: '/admin/users',
   },
   {
+    label: 'Կատեգորիաներ',
+    href: '/admin/categories',
+  },
+  {
     label: 'Հարցեր',
     href: '/admin/questions',
   },
@@ -35,6 +39,10 @@ const menuItems: MenuItem[] = [
   {
     label: 'Հաղորդագրություններ',
     href: '/admin/contacts',
+  },
+  {
+    label: 'Կարգավորումներ',
+    href: '/admin/settings',
   },
 ];
 

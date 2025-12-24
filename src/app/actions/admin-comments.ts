@@ -15,6 +15,10 @@ export interface CommentWithQuestion {
     title: string;
     img: string | null;
     lessonCategoryId: number;
+    lessonCategory: {
+      id: number;
+      name: string;
+    };
   };
 }
 
@@ -29,6 +33,12 @@ export async function getAllComments(): Promise<CommentWithQuestion[]> {
             title: true,
             img: true,
             lessonCategoryId: true,
+            lessonCategory: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
           },
         },
       },

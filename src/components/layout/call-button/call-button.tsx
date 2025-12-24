@@ -2,11 +2,13 @@
 
 import { motion } from 'framer-motion';
 
-function CallButton() {
-  const phoneNumber = '093-77-31-41';
+interface CallButtonProps {
+  phoneNumber?: string;
+}
 
+function CallButton({ phoneNumber = '093-77-31-41' }: CallButtonProps) {
   const handleCall = () => {
-    window.location.href = `tel:${phoneNumber}`;
+    window.location.href = `tel:${phoneNumber.replace(/\s|-/g, '')}`;
   };
 
   return (

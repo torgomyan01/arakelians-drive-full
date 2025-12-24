@@ -23,14 +23,26 @@ export default function AdminLoginPage() {
         redirect: false,
       });
 
+      console.log('Login result:', result);
+
       if (result?.error) {
-        setError('Սխալ email կամ գաղտնաբառ');
+        console.error('Login error:', result.error);
+        setError(
+          result.error === 'CredentialsSignin'
+            ? 'Սխալ email կամ գաղտնաբառ'
+            : `Սխալ: ${result.error}`
+        );
       } else if (result?.ok) {
         router.push('/admin');
         router.refresh();
+      } else {
+        setError('Սխալ է տեղի ունեցել. Խնդրում ենք փորձել կրկին:');
       }
-    } catch (err) {
-      setError('Սխալ է տեղի ունեցել');
+    } catch (err: any) {
+      console.error('Login exception:', err);
+      setError(
+        err?.message || 'Սխալ է տեղի ունեցել. Խնդրում ենք փորձել կրկին:'
+      );
     } finally {
       setLoading(false);
     }

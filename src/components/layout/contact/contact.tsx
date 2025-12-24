@@ -2,7 +2,19 @@
 
 import { useState } from 'react';
 
-function Contact() {
+interface ContactProps {
+  phoneNumber?: string;
+  address?: string;
+  telegram?: string;
+  whatsapp?: string;
+}
+
+function Contact({
+  phoneNumber = '+374 77 76-96-68',
+  address = 'Ք․ Սիսիան',
+  telegram,
+  whatsapp,
+}: ContactProps) {
   const textWhite = 'text-white';
   const textSizeBase = 'text-[17px]';
   const textSizeSmall = 'text-[16px]';
@@ -107,24 +119,42 @@ function Contact() {
           <div className={contactItem}>
             <img src="images/phone-call.svg" alt="" className="mr-5" />
             <a
-              href="tel:+37477769668"
+              href={`tel:${phoneNumber.replace(/\s|-/g, '')}`}
               className={`${textWhite} ${textSizeBase}`}
             >
-              +374 77 76-96-68
+              {phoneNumber}
             </a>
           </div>
           <div className={contactItem}>
             <img src="images/location-filled.svg" alt="" className="mr-5" />
-            <span className={`${textWhite} ${textSizeBase}`}>Ք․ Սիսիան</span>
+            <span className={`${textWhite} ${textSizeBase}`}>{address}</span>
           </div>
-          <div className="flex items-center mt-8 max-md:mt-5">
-            <a href="#" className="mr-2.5">
-              <img src="images/whatsapp-fill.svg" alt="" />
-            </a>
-            <a href="#">
-              <img src="images/baseline-telegram.svg" alt="" />
-            </a>
-          </div>
+          {(whatsapp || telegram) && (
+            <div className="flex items-center mt-8 max-md:mt-5">
+              {whatsapp && (
+                <a
+                  href={whatsapp}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mr-2.5 hover:opacity-80 transition-opacity"
+                  aria-label="WhatsApp"
+                >
+                  <img src="images/whatsapp-fill.svg" alt="WhatsApp" />
+                </a>
+              )}
+              {telegram && (
+                <a
+                  href={telegram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:opacity-80 transition-opacity"
+                  aria-label="Telegram"
+                >
+                  <img src="images/baseline-telegram.svg" alt="Telegram" />
+                </a>
+              )}
+            </div>
+          )}
         </div>
         <form
           onSubmit={handleSubmit}
