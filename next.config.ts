@@ -23,6 +23,11 @@ const nextConfig = {
     additionalData: ``,
     includePaths: [path.join(__dirname, 'src/access/css')],
   },
+  trailingSlash: false,
+  async redirects() {
+    return [];
+  },
+  poweredByHeader: false,
   images: {
     remotePatterns: [
       {
