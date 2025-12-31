@@ -1,4 +1,4 @@
-import path from "path";
+import path from 'path';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -17,43 +17,43 @@ const nextConfig = {
   env: {
     // NEXT_PUBLIC_SERVER_URL: process.env.NEXT_PUBLIC_SERVER_URL,
   },
-  transpilePackages: ["@mep-agency/next-iubenda"],
+  transpilePackages: ['@mep-agency/next-iubenda'],
   reactStrictMode: true,
   sassOptions: {
     additionalData: ``,
-    includePaths: [path.join(__dirname, "src/access/css")],
+    includePaths: [path.join(__dirname, 'src/access/css')],
   },
   images: {
     remotePatterns: [
       {
-        hostname: "**",
+        hostname: '**',
       },
     ],
   },
   async headers() {
     return [
       {
-        source: "/(.*)",
+        source: '/(.*)',
         headers: [
           {
-            key: "Strict-Transport-Security",
-            value: "max-age=31536000; includeSubDomains; preload", // Հատուկ պարամետրեր
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000; includeSubDomains; preload', // Հատուկ պարամետրեր
           },
           {
-            key: "X-XSS-Protection",
-            value: "1; mode=block",
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
           },
           {
-            key: "X-Frame-Options",
-            value: "SAMEORIGIN",
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
           },
           {
-            key: "Referrer-Policy",
-            value: "strict-origin",
+            key: 'Referrer-Policy',
+            value: 'strict-origin',
           },
           {
-            key: "Permissions-Policy",
-            value: "geolocation=(), camera=(), microphone=()",
+            key: 'Permissions-Policy',
+            value: 'geolocation=(), camera=(), microphone=()',
           },
         ],
       },

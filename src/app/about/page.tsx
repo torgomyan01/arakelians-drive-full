@@ -138,35 +138,6 @@ function AboutPage() {
               ))}
             </div>
           </section>
-
-          {/* Certificates Section */}
-          <section className="mt-16 mb-16 max-md:mt-10 max-md:mb-10">
-            <h2 className="global-title mb-8 max-md:mb-6">
-              Մեր սերտիֆիկատները
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-md:gap-4">
-              {certificates.map((certificate) => (
-                <div
-                  key={certificate.id}
-                  className="bg-white rounded-[20px] shadow-[0_0_34px_rgba(0,0,0,0.16)] overflow-hidden hover:shadow-[0_0_50px_rgba(250,134,4,0.3)] transition-all duration-300 group cursor-pointer"
-                >
-                  <div className="relative w-full aspect-[4/3]">
-                    <Image
-                      src={certificate.image}
-                      alt={certificate.title}
-                      fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-300"
-                    />
-                  </div>
-                  <div className="p-4 text-center">
-                    <p className="text-[#1A2229] font-semibold">
-                      {certificate.title}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
         </div>
       </main>
       <Footer />
