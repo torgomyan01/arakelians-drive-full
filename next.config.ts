@@ -42,23 +42,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Strict-Transport-Security',
-            value: 'max-age=31536000; includeSubDomains; preload', // Հատուկ պարամետրեր
-          },
-          {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block',
-          },
-          {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'strict-origin',
-          },
-          {
-            key: 'Permissions-Policy',
-            value: 'geolocation=(), camera=(), microphone=()',
+            value: '',
           },
         ],
       },
