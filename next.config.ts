@@ -2,6 +2,9 @@ import path from 'path';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  env: {
+    NEXTAUTH_URL: process.env.NEXT_PUBLIC_APP_URL,
+  },
   eslint: {
     // Отключаем проверку ESLint во время production build
     ignoreDuringBuilds: true,
@@ -14,9 +17,6 @@ const nextConfig = {
   experimental: {
     esmExternals: true,
     serverActions: {},
-  },
-  env: {
-    // NEXT_PUBLIC_SERVER_URL: process.env.NEXT_PUBLIC_SERVER_URL,
   },
   transpilePackages: ['@mep-agency/next-iubenda'],
   reactStrictMode: true,
@@ -55,6 +55,13 @@ const nextConfig = {
         ],
       },
     ];
+  },
+  async redirects() {
+    return [];
+  },
+
+  async rewrites() {
+    return [];
   },
 };
 
