@@ -6,6 +6,7 @@ const nextConfig = {
     // Отключаем проверку ESLint во время production build
     ignoreDuringBuilds: true,
   },
+  metadataBase: new URL('https://arakelians-drive.am/'),
   typescript: {
     // Отключаем проверку TypeScript во время production build (опционально)
     ignoreBuildErrors: false,
@@ -23,11 +24,6 @@ const nextConfig = {
     additionalData: ``,
     includePaths: [path.join(__dirname, 'src/access/css')],
   },
-  trailingSlash: false,
-  async redirects() {
-    return [];
-  },
-  poweredByHeader: false,
   images: {
     remotePatterns: [
       {
@@ -36,7 +32,33 @@ const nextConfig = {
     ],
   },
   async headers() {
-    return [];
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000; includeSubDomains; preload', // Հատուկ պարամետրեր
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin',
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'geolocation=(), camera=(), microphone=()',
+          },
+        ],
+      },
+    ];
   },
 };
 
