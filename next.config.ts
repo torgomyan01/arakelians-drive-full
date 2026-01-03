@@ -36,17 +36,7 @@ const nextConfig = {
     ],
   },
   async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'Strict-Transport-Security',
-            value: '',
-          },
-        ],
-      },
-    ];
+    return [];
   },
 };
 
