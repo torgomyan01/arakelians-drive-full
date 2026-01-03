@@ -20,6 +20,10 @@ const navItems = [
     href: SITE_URL.TESTS,
   },
   {
+    label: 'Բլոգ',
+    href: SITE_URL.BLOG,
+  },
+  {
     label: 'Կոնտակտ',
     href: SITE_URL.CONTACT,
   },

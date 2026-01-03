@@ -9,6 +9,28 @@ import Footer from '@/components/layout/footer/footer';
 import MainTemplate from '@/components/layout/main-template/main-template';
 import Navbar from '@/components/layout/navbar/navbar';
 import { getSetting } from '@/app/actions/admin-settings';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Arakelians Drive - Ավտոդպրոց Հայաստանում | Վարորդական Իրավունք',
+  description:
+    'Arakelians Drive - Հայաստանի լավագույն ավտոդպրոցը: Վարորդական իրավունք ստանալու ամբողջական ծառայություններ: 2000+ շրջանավարտ, 98% հաջողություն առաջին փորձից: Ժամանակակից նավատորմ, փորձառու հրահանգիչներ, անհատական մոտեցում:',
+  keywords:
+    'ավտոդպրոց, վարորդական իրավունք, Arakelians Drive, ավտոդպրոց Երևանում, ավտոդպրոց Հայաստանում, վարորդական դասեր, վարորդական քննություն, վարորդական իրավունք ստանալ, վարորդական իրավունք Երևան, վարորդական իրավունք Սիսիան, ավտոդպրոց Սիսիան',
+  openGraph: {
+    title: 'Arakelians Drive - Ավտոդպրոց Հայաստանում',
+    description:
+      'Arakelians Drive - Հայաստանի լավագույն ավտոդպրոցը: 2000+ շրջանավարտ, 98% հաջողություն առաջին փորձից',
+    type: 'website',
+    siteName: 'Arakelians Drive',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Arakelians Drive - Ավտոդպրոց Հայաստանում',
+    description:
+      'Arakelians Drive - Հայաստանի լավագույն ավտոդպրոցը: 2000+ շրջանավարտ, 98% հաջողություն առաջին փորձից',
+  },
+};
 
 export default async function Page() {
   const phoneNumber = (await getSetting('phone_number')) || '+374 77 76-96-68';

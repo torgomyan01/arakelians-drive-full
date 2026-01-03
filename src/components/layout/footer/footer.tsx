@@ -29,7 +29,7 @@ function Footer() {
           <span
             className={`${textColorDark} max-lg:max-w-[190px] max-md:max-w-[160px] max-md:text-[13px] max-md:text-right`}
           >
-            Բոլոր իրավուքները պաշտպանված են 2025
+            Բոլոր իրավուքները պաշտպանված են {new Date().getFullYear()}
           </span>
         </div>
       </div>

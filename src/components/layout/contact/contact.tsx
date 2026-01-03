@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 
 interface ContactProps {
   phoneNumber?: string;
@@ -88,8 +89,12 @@ function Contact({
       <h2 className="global-title">Կապ մեզ հետ</h2>
       <div className="rounded-[10px] bg-white shadow-[0_0_60px_30px_rgba(0,0,0,0.03)] flex justify-between p-2.5 max-lg:flex-col">
         <div
-          className="bg-cover bg-bottom bg-no-repeat w-[43%] p-10 rounded-[6px] max-xl:px-8 max-lg:w-full max-lg:mb-8 max-md:p-5"
-          style={{ backgroundImage: 'url(/images/contact-img.png)' }}
+          className="w-[43%] p-10 rounded-[6px] max-xl:px-8 max-lg:w-full max-lg:mb-8 max-md:p-5 bg-[#FA8604]"
+          style={{
+            backgroundImage: 'url(/images/contact-img.svg)',
+            backgroundPosition: 'right bottom',
+            backgroundRepeat: 'no-repeat',
+          }}
         >
           <h3
             className={`${textWhite} text-[28px] font-bold max-xl:text-[26px] max-md:text-2xl`}
@@ -103,7 +108,13 @@ function Contact({
           </p>
           <div className="flex mb-[60px] max-md:mb-5">
             <div className="flex rounded-[10px] overflow-hidden min-w-[170px] h-[190px] mr-5 max-md:min-w-[100px] max-md:h-auto max-md:mr-4">
-              <img src="images/person.png" alt="" />
+              <Image
+                src="/images/person.png"
+                alt="Arsen Arakelian Founder"
+                width={170}
+                height={190}
+                className="object-cover w-full h-full"
+              />
             </div>
             <div>
               <b
@@ -139,7 +150,7 @@ function Contact({
                   className="mr-2.5 hover:opacity-80 transition-opacity"
                   aria-label="WhatsApp"
                 >
-                  <img src="images/whatsapp-fill.svg" alt="WhatsApp" />
+                  <img src="/images/whatsapp-fill.svg" alt="WhatsApp" />
                 </a>
               )}
               {telegram && (
@@ -150,7 +161,7 @@ function Contact({
                   className="hover:opacity-80 transition-opacity"
                   aria-label="Telegram"
                 >
-                  <img src="images/baseline-telegram.svg" alt="Telegram" />
+                  <img src="/images/baseline-telegram.svg" alt="Telegram" />
                 </a>
               )}
             </div>
@@ -212,7 +223,7 @@ function Contact({
           <button
             type="submit"
             disabled={loading}
-            className="rounded-[10px] bg-[linear-gradient(90deg,#FA8604_0%,rgba(250,134,4,0.6)_100%)] py-2 px-[35px] text-[22px] text-white self-end max-lg:self-center disabled:opacity-50 disabled:cursor-not-allowed"
+            className="rounded-[10px] bg-[linear-gradient(90deg,#FA8604_0%,rgba(250,134,4,0.6)_100%)] cursor-pointer py-2 px-[35px] text-[22px] text-white self-end max-lg:self-center disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-[#FA8604]/50 hover:bg-[linear-gradient(90deg,#e67503_0%,rgba(230,117,3,0.7)_100%)] active:scale-95"
           >
             {loading ? 'Ուղարկվում է...' : 'Ուղարկել'}
           </button>

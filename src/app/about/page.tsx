@@ -17,6 +17,13 @@ export const metadata: Metadata = {
     description:
       'Arakelians Drive - Հայաստանի լավագույն ավտոդպրոցը: 2000+ շրջանավարտ, 98% հաջողություն առաջին փորձից',
     type: 'website',
+    siteName: 'Arakelians Drive',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Մեր մասին | Arakelians Drive',
+    description:
+      'Arakelians Drive - Հայաստանի լավագույն ավտոդպրոցը: 2000+ շրջանավարտ, 98% հաջողություն առաջին փորձից',
   },
 };
 

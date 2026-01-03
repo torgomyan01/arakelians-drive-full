@@ -5,6 +5,7 @@ export const SITE_URL = {
   CONTACT: '/contact',
   ABOUT: '/about',
   FAQ: '/faq',
+  BLOG: '/blog',
   TRAINING: '/learn-rules-road',
   RULES: '/rules',
   ROAD_SIGNS: '/road-signs',

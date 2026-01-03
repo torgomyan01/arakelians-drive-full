@@ -37,18 +37,31 @@ export async function generateMetadata({
 
   if (!section) {
     return {
-      title: 'Բաժինը չի գտնվել',
+      title: 'Բաժինը չի գտնվել | Arakelians Drive',
+      description: 'Ցանկալի բաժինը չի գտնվել:',
     };
   }
 
   return {
-    title: `${section.title} | Ճանապարհային Կանոններ | xDrive`,
-    description: section.description,
-    keywords: `ճանապարհային կանոններ, ${section.title}, երթևեկության կանոններ, Հայաստան`,
+    title: `${section.title} | Ճանապարհային Կանոններ | Arakelians Drive`,
+    description:
+      section.description ||
+      `${section.title} - Հայաստանի Հանրապետության ճանապարհային երթևեկության կանոնների մաս:`,
+    keywords: `ճանապարհային կանոններ, ${section.title}, երթևեկության կանոններ, Հայաստան, վարորդական իրավունք, Arakelians Drive`,
     openGraph: {
-      title: section.title,
-      description: section.description,
+      title: `${section.title} | Arakelians Drive`,
+      description:
+        section.description ||
+        `${section.title} - Ճանապարհային երթևեկության կանոններ`,
       type: 'article',
+      siteName: 'Arakelians Drive',
+    },
+    twitter: {
+      card: 'summary',
+      title: `${section.title} | Arakelians Drive`,
+      description:
+        section.description ||
+        `${section.title} - Ճանապարհային երթևեկության կանոններ`,
     },
   };
 }

@@ -29,6 +29,10 @@ const menuItems: MenuItem[] = [
     href: '/admin/questions',
   },
   {
+    label: 'Բլոգ',
+    href: '/admin/blogs',
+  },
+  {
     label: 'Մեկնաբանություններ',
     href: '/admin/comments',
   },

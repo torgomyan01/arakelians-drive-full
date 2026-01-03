@@ -99,6 +99,12 @@ export default async function AdminDashboard() {
             Գրանցումներ կառավարել
           </Link>
           <Link
+            href="/admin/blogs"
+            className="bg-white border-2 border-[#FA8604] text-[#FA8604] rounded-[10px] py-3 px-6 font-medium hover:bg-[#FA8604] hover:text-white transition-colors text-center"
+          >
+            Բլոգ կառավարել
+          </Link>
+          <Link
             href="/admin/settings"
             className="bg-white border-2 border-[#FA8604] text-[#FA8604] rounded-[10px] py-3 px-6 font-medium hover:bg-[#FA8604] hover:text-white transition-colors text-center"
           >
