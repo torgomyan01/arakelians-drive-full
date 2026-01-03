@@ -12,15 +12,10 @@ export const UPLOAD_CONFIG = {
   PUBLIC_PATH: '/api/uploads',
 
   // Base URL - will be used to generate full URLs
+  // Always use server URL so images load from server even in local development
   getBaseUrl: () => {
-    // In production, use the actual domain
-    if (process.env.NEXT_PUBLIC_APP_URL) {
-      return process.env.NEXT_PUBLIC_APP_URL;
-    }
-    // Fallback to localhost in development
-    return process.env.NODE_ENV === 'production'
-      ? 'https://arakelians-drive.am'
-      : 'http://localhost:3000';
+    // Always use the server URL for uploads
+    return 'https://arakelians-drive.am';
   },
 
   // Generate full URL for an image

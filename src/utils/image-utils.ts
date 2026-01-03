@@ -21,20 +21,23 @@ export function getImageUrl(filename: string | null | undefined): string {
   if (filename.startsWith('/')) {
     // Old format: /lessons/images/filename
     if (filename.startsWith('/lessons/images/')) {
-      // Keep old format for backward compatibility
-      return filename;
+      // For old images, also load from server
+      return `https://arakelians-drive.am${filename}`;
     }
     // New format: /api/uploads/filename
     if (filename.startsWith('/api/uploads/')) {
-      return filename;
+      // Convert to full server URL
+      return `https://arakelians-drive.am${filename}`;
     }
     // If it's just a path starting with /, assume it's the new format
-    return filename;
+    return `https://arakelians-drive.am${filename}`;
   }
 
   // Check if it contains the old path structure
   if (filename.includes('/lessons/images/')) {
-    return filename;
+    // Extract the path and convert to server URL
+    const path = filename.startsWith('/') ? filename : `/${filename}`;
+    return `https://arakelians-drive.am${path}`;
   }
 
   // Check if it's stored as just a filename (new format)
