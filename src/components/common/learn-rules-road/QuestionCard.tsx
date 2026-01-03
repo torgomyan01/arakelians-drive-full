@@ -1,5 +1,7 @@
 'use client';
 
+import { getImageUrl } from '@/utils/image-utils';
+
 interface QuestionOption {
   id: number;
   text: string;
@@ -37,7 +39,7 @@ export default function QuestionCard({
       {question.img && (
         <div className="flex-jc-c">
           <img
-            src={`/lessons/images/${question.img}`}
+            src={getImageUrl(question.img)}
             alt=""
             className="rounded-[20px] mb-6"
           />

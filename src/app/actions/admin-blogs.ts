@@ -2,9 +2,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
-import { unlink } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
+import { deleteImageFile } from '@/utils/image-delete';
 
 export interface BlogPost {
   id: number;
@@ -246,22 +244,9 @@ export async function deleteBlogPost(id: number) {
       return { success: false, error: 'Հոդվածը չի գտնվել' };
     }
 
-    // Delete the featured image file if it exists
+    // Delete the featured image file if it exists (supports both old and new paths)
     if (postToDelete.featuredImage) {
-      try {
-        const imagePath = join(
-          process.cwd(),
-          'public',
-          postToDelete.featuredImage.startsWith('/')
-            ? postToDelete.featuredImage.slice(1)
-            : postToDelete.featuredImage
-        );
-        if (existsSync(imagePath)) {
-          await unlink(imagePath);
-        }
-      } catch (imageError: any) {
-        console.error('Error deleting image file:', imageError);
-      }
+      await deleteImageFile(postToDelete.featuredImage);
     }
 
     await prisma.blogPost.delete({

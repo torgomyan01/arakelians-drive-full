@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
 import { existsSync } from 'fs';
+import { UPLOAD_CONFIG } from '@/utils/upload-config';
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,19 +13,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-    if (!allowedTypes.includes(file.type)) {
+    if (!UPLOAD_CONFIG.ALLOWED_TYPES.includes(file.type)) {
       return NextResponse.json(
-        { error: 'Միայն նկարներ են թույլատրված (JPG, PNG, GIF)' },
+        { error: 'Միայն նկարներ են թույլատրված (JPG, PNG, GIF, WEBP)' },
         { status: 400 }
       );
     }
 
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (file.size > maxSize) {
+    // Validate file size
+    if (file.size > UPLOAD_CONFIG.MAX_FILE_SIZE) {
       return NextResponse.json(
-        { error: 'Ֆայլի չափը չպետք է գերազանցի 5MB' },
+        {
+          error: `Ֆայլի չափը չպետք է գերազանցի ${UPLOAD_CONFIG.MAX_FILE_SIZE / 1024 / 1024}MB`,
+        },
         { status: 400 }
       );
     }
@@ -35,25 +35,28 @@ export async function POST(request: NextRequest) {
 
     // Generate unique filename
     const timestamp = Date.now();
+    const randomStr = Math.random().toString(36).substring(2, 8);
     const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const filename = `${timestamp}_${originalName}`;
+    const filename = `${timestamp}_${randomStr}_${originalName}`;
 
-    // Ensure upload directory exists
-    const uploadDir = join(process.cwd(), 'public', 'lessons', 'images');
+    // Ensure upload directory exists (outside build directory)
+    const uploadDir = UPLOAD_CONFIG.UPLOAD_DIR;
     if (!existsSync(uploadDir)) {
       await mkdir(uploadDir, { recursive: true });
     }
 
     // Save file
+    const { join } = await import('path');
     const filepath = join(uploadDir, filename);
     await writeFile(filepath, buffer);
 
-    // Return relative path
-    const relativePath = `/lessons/images/${filename}`;
+    // Generate full URL that works both locally and on server
+    const imageUrl = UPLOAD_CONFIG.getImageUrl(filename);
 
     return NextResponse.json({
       success: true,
-      path: relativePath,
+      url: imageUrl,
+      path: `${UPLOAD_CONFIG.PUBLIC_PATH}/${filename}`,
       filename: filename,
     });
   } catch (error: any) {

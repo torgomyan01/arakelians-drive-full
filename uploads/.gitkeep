@@ -1,0 +1,4 @@
+# This folder stores uploaded images
+# Images are stored here to persist after builds
+# The folder structure is preserved in git, but actual image files are not committed
+

@@ -2,9 +2,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
-import { unlink } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
+import { deleteImageFile } from '@/utils/image-delete';
 
 export interface QuestionWithOptions {
   id: number;
@@ -217,23 +215,9 @@ export async function deleteQuestion(id: number) {
       return { success: false, error: 'Հարցը չի գտնվել' };
     }
 
-    // Delete the image file if it exists
+    // Delete the image file if it exists (supports both old and new paths)
     if (questionToDelete.img) {
-      try {
-        const imagePath = join(
-          process.cwd(),
-          'public',
-          'lessons',
-          'images',
-          questionToDelete.img
-        );
-        if (existsSync(imagePath)) {
-          await unlink(imagePath);
-        }
-      } catch (imageError: any) {
-        // Log error but don't fail the deletion if image deletion fails
-        console.error('Error deleting image file:', imageError);
-      }
+      await deleteImageFile(questionToDelete.img);
     }
 
     // Delete the question from database

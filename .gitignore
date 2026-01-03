@@ -222,3 +222,7 @@ fabric.properties
 .claude/
 
 /generated/prisma
+
+# Uploaded images (keep folder structure with .gitkeep)
+uploads/*
+!uploads/.gitkeep

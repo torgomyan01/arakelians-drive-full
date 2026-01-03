@@ -8,6 +8,7 @@ import {
   deleteQuestion,
 } from '@/app/actions/admin-questions';
 import { useRouter } from 'next/navigation';
+import { getImageUrl } from '@/utils/image-utils';
 
 interface QuestionEditModalProps {
   question: QuestionWithOptions | null;
@@ -55,7 +56,7 @@ export default function QuestionEditModal({
         })),
       });
       if (question.img) {
-        setImagePreview(`/lessons/images/${question.img}`);
+        setImagePreview(getImageUrl(question.img));
       } else {
         setImagePreview(null);
       }
@@ -163,10 +164,12 @@ export default function QuestionEditModal({
         throw new Error(result.error || 'Սխալ է տեղի ունեցել');
       }
 
-      // Update form data with uploaded image path
-      // Store only filename, not full path
+      // Update form data with uploaded image filename
+      // Store only filename, the full URL will be generated when needed
       const filename = result.filename;
       setFormData((prev) => ({ ...prev, img: filename }));
+      // Update preview with full URL
+      setImagePreview(result.url || getImageUrl(filename));
     } catch (err: any) {
       setError(err.message || 'Նկարի բեռնումը ձախողվեց');
       setImagePreview(null);

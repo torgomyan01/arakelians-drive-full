@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { QuestionWithOptions } from '@/app/actions/admin-questions';
 import QuestionEditModal from './question-edit-modal';
+import { getImageUrl } from '@/utils/image-utils';
 
 interface QuestionsListProps {
   questions: QuestionWithOptions[];
@@ -132,7 +133,7 @@ export default function QuestionsList({
                   {question.img && (
                     <div className="mb-3">
                       <img
-                        src={`/lessons/images/${question.img}`}
+                        src={getImageUrl(question.img)}
                         alt="Question"
                         className="max-w-xs rounded-[10px]"
                       />

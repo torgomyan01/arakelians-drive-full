@@ -5,6 +5,7 @@ import { CommentWithQuestion } from '@/app/actions/admin-comments';
 import { deleteComment, replyToComment } from '@/app/actions/admin-comments';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { getImageUrl } from '@/utils/image-utils';
 
 interface CommentsListProps {
   comments: CommentWithQuestion[];
@@ -198,7 +199,7 @@ export default function CommentsList({ comments }: CommentsListProps) {
                     {group.question.img && (
                       <div className="mt-3">
                         <img
-                          src={`/lessons/images/${group.question.img}`}
+                          src={getImageUrl(group.question.img)}
                           alt="Question"
                           className="max-w-md rounded-[10px] border border-gray-300"
                         />
