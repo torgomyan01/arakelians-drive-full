@@ -11,6 +11,7 @@ import NextTopLoader from 'nextjs-toploader';
 import type { Metadata } from 'next';
 
 import { Providers } from '@/app/providers';
+import CookieConsent from '@/components/common/cookie-consent/cookie-consent';
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -48,6 +49,7 @@ export default async function RootLayout({
       <body className="text-foreground bg-background">
         <NextTopLoader />
         <Providers>{children}</Providers>
+        <CookieConsent />
       </body>
     </html>
   );

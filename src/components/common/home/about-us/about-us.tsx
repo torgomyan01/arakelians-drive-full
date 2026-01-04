@@ -268,7 +268,7 @@ function AboutUs() {
 
       {/* Registration Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-100 backdrop-blur-sm p-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -277,7 +277,7 @@ function AboutUs() {
           >
             <button
               onClick={handleModalClose}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl"
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl cursor-pointer"
             >
               ×
             </button>

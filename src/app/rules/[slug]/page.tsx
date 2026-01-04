@@ -3,16 +3,15 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import MainTemplate from '@/components/layout/main-template/main-template';
 import {
-  getSectionBySlug,
-  getAllSections,
-  RulesSection,
-} from '@/utils/rulesSections';
+  getRulesSectionBySlug,
+  getAllRulesSections,
+} from '@/app/actions/admin-rules';
 import { SITE_URL } from '@/utils/consts';
 import RuleContentRenderer from '@/components/common/rules/RuleContentRenderer';
 import RuleSearch from '@/components/common/rules/RuleSearch';
 
-export const dynamicParams = false; // Only generate pages for slugs returned by generateStaticParams
-export const revalidate = 3600; // Revalidate every hour
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 interface PageProps {
   params: Promise<{
@@ -20,20 +19,13 @@ interface PageProps {
   }>;
 }
 
-export async function generateStaticParams() {
-  const sections = getAllSections();
-  // Ensure we return all sections
-  const params = sections.map((section) => ({
-    slug: section.slug,
-  }));
-  return params;
-}
+// Removed generateStaticParams - using dynamic rendering instead
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const section = getSectionBySlug(slug);
+  const section = await getRulesSectionBySlug(slug);
 
   if (!section) {
     return {
@@ -68,9 +60,9 @@ export async function generateMetadata({
 
 export default async function RulesSectionPage({ params }: PageProps) {
   const { slug } = await params;
-  const section = getSectionBySlug(slug);
-  const allSections = getAllSections();
-  const currentIndex = allSections.findIndex((s) => s.slug === slug);
+  const section = await getRulesSectionBySlug(slug);
+  const allSections = await getAllRulesSections();
+  const currentIndex = allSections.findIndex((s: any) => s.slug === slug);
   const prevSection = currentIndex > 0 ? allSections[currentIndex - 1] : null;
   const nextSection =
     currentIndex < allSections.length - 1
@@ -191,7 +183,10 @@ export default async function RulesSectionPage({ params }: PageProps) {
           <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-8 md:p-12 mb-8">
             <div className="prose prose-lg max-w-none">
               {/* Use the new RuleContentRenderer for better structure */}
-              <RuleContentRenderer content={section.content} />
+              <RuleContentRenderer
+                content={section.content}
+                items={section.items}
+              />
             </div>
           </div>
 

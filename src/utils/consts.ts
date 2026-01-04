@@ -13,6 +13,7 @@ export const SITE_URL = {
   VEHICLE_IDENTIFICATION_SIGNS: '/vehicle-identification-signs',
   VEHICLE_TECHNICAL_DEFECTS: '/vehicle-technical-defects',
   TRAFFIC_LAW: '/traffic-law',
+  PRIVACY_POLICY: '/privacy-policy',
 };
 
 export const localStorageKeys = {};

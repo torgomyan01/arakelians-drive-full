@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import AdminSidebar from './admin-sidebar';
 
+const SIDEBAR_STORAGE_KEY = 'admin-sidebar-collapsed';
+
 export default function AdminLayoutWrapper({
   children,
 }: {
@@ -12,13 +14,30 @@ export default function AdminLayoutWrapper({
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Load state from localStorage on mount
+  useEffect(() => {
+    const savedState = localStorage.getItem(SIDEBAR_STORAGE_KEY);
+    if (savedState !== null) {
+      setIsCollapsed(JSON.parse(savedState));
+    }
+    setIsHydrated(true);
+  }, []);
 
   useEffect(() => {
     const checkMobile = () => {
       const mobile = window.innerWidth < 1024;
       setIsMobile(mobile);
+      // On mobile, always collapse sidebar
       if (mobile) {
         setIsCollapsed(true);
+      } else {
+        // On desktop, restore saved state
+        const savedState = localStorage.getItem(SIDEBAR_STORAGE_KEY);
+        if (savedState !== null) {
+          setIsCollapsed(JSON.parse(savedState));
+        }
       }
     };
 
@@ -27,8 +46,15 @@ export default function AdminLayoutWrapper({
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Save state to localStorage whenever it changes (only on desktop)
+  useEffect(() => {
+    if (isHydrated && !isMobile) {
+      localStorage.setItem(SIDEBAR_STORAGE_KEY, JSON.stringify(isCollapsed));
+    }
+  }, [isCollapsed, isMobile, isHydrated]);
+
   const toggleSidebar = () => {
-    setIsCollapsed(!isCollapsed);
+    setIsCollapsed((prev) => !prev);
   };
 
   // Don't show sidebar on login page

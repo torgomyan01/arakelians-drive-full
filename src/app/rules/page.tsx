@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import MainTemplate from '@/components/layout/main-template/main-template';
-import { getAllSections } from '@/utils/rulesSections';
+import { getAllRulesSections } from '@/app/actions/admin-rules';
 import { SITE_URL } from '@/utils/consts';
 
 export const metadata: Metadata = {
@@ -25,8 +25,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RulesPage() {
-  const sections = getAllSections();
+export default async function RulesPage() {
+  const sections = await getAllRulesSections();
 
   return (
     <MainTemplate>
@@ -158,7 +158,7 @@ export default function RulesPage() {
 
           {/* Sections Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-[100px] max-[767px]:mb-8">
-            {sections.map((section, index) => (
+            {sections.map((section: any, index: number) => (
               <Link
                 key={section.id}
                 href={`/rules/${section.slug}`}

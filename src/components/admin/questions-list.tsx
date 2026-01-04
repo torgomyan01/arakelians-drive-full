@@ -93,7 +93,7 @@ export default function QuestionsList({
                   e.target.value ? Number(e.target.value) : null
                 )
               }
-              className="border border-gray-300 rounded-[10px] px-4 py-2 focus:outline-none focus:border-[#FA8604]"
+              className="border border-gray-300 rounded-[10px] px-4 py-2 focus:outline-none focus:border-[#FA8604] max-w-[200px]"
             >
               <option value="">Բոլորը</option>
               {categories.map((cat) => (

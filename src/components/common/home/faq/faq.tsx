@@ -7,7 +7,7 @@ import FaqList from '@/components/common/faq/FaqList';
 
 function Faq() {
   return (
-    <div className="my-[40px]">
+    <div className="my-[40px] mt-[90px]">
       <h2 className="global-title mb-[50px] max-md:mb-[30px]">
         Հաճախ Տրվող Հարցեր (FAQ)
       </h2>

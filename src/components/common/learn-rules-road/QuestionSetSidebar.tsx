@@ -7,6 +7,7 @@ import {
   FormControl,
   SelectChangeEvent,
 } from '@mui/material';
+import { Tooltip } from '@heroui/tooltip';
 
 interface LessonCategory {
   id: number;
@@ -29,9 +30,9 @@ export default function QuestionSetSidebar({
 }: QuestionSetSidebarProps) {
   const bgOrange = 'bg-[#FA8604]';
   const sidebarItemActive =
-    'p-2.5 bg-white rounded-[30px] text-[#FA8604] text-base w-full text-center mb-1.5';
+    'p-2.5 bg-white rounded-[30px] text-[#FA8604] text-base w-full text-center mb-1.5 truncate whitespace-nowrap overflow-hidden';
   const sidebarItemInactive =
-    'p-2.5 bg-white/30 rounded-[30px] text-white text-base w-full text-center mb-1.5';
+    'p-2.5 bg-white/30 rounded-[30px] text-white text-base w-full text-center mb-1.5 truncate whitespace-nowrap overflow-hidden';
 
   // Create a map for quick lookup of category data
   const categoryMap = new Map(categories.map((cat) => [cat.id, cat]));
@@ -76,17 +77,25 @@ export default function QuestionSetSidebar({
       >
         {items.map((id) => {
           const category = categoryMap.get(id);
+          const categoryName = category?.name || `Հարցաշար ${id}`;
           return (
-            <button
+            <Tooltip
               key={id}
-              onClick={() => onItemSelect?.(id)}
-              className={clsx(
-                id === activeItem ? sidebarItemActive : sidebarItemInactive,
-                'cursor-pointer hover:bg-white/40 '
-              )}
+              content={categoryName}
+              placement="right"
+              showArrow
+              isDisabled={categoryName.length <= 30}
             >
-              {category?.name || `Հարցաշար ${id}`}
-            </button>
+              <button
+                onClick={() => onItemSelect?.(id)}
+                className={clsx(
+                  id === activeItem ? sidebarItemActive : sidebarItemInactive,
+                  'cursor-pointer hover:bg-white/40'
+                )}
+              >
+                {categoryName}
+              </button>
+            </Tooltip>
           );
         })}
       </div>

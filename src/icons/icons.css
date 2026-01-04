@@ -27,6 +27,59 @@
   content: '\f021';
 }
 
+/* Admin Sidebar Icons */
+.fa-home:before {
+  content: '\f015';
+}
+
+.fa-users:before {
+  content: '\f0c0';
+}
+
+.fa-folder:before {
+  content: '\f07b';
+}
+
+.fa-question-circle:before {
+  content: '\f059';
+}
+
+.fa-blog:before {
+  content: '\f781';
+}
+
+.fa-road:before {
+  content: '\f018';
+}
+
+.fa-comments:before {
+  content: '\f086';
+}
+
+.fa-clipboard-list:before {
+  content: '\f46d';
+}
+
+.fa-envelope:before {
+  content: '\f0e0';
+}
+
+.fa-cog:before {
+  content: '\f013';
+}
+
+.fa-sign-out:before {
+  content: '\f2f5';
+}
+
+.fa-chevron-down:before {
+  content: '\f078';
+}
+
+.fa-flag:before {
+  content: '\f024';
+}
+
 /*---------------------------------*/
 
 @font-face {

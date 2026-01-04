@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import {
   createComment,
   getCommentsByQuestion,
+  reportComment,
   Comment,
 } from '@/app/actions/comments';
 import { saveAuthorName, getAuthorName } from '@/utils/userNameStorage';
@@ -174,6 +175,50 @@ export default function CommentForm({ questionId }: CommentFormProps) {
                 <p className="text-base text-[#191919] leading-relaxed max-[767px]:text-sm">
                   {comment.text}
                 </p>
+                <div className="mt-3 flex justify-end">
+                  <button
+                    onClick={async () => {
+                      if (
+                        confirm(
+                          'Դուք ցանկանու՞մ եք բողոքարկել այս մեկնաբանությունը:'
+                        )
+                      ) {
+                        const result = await reportComment(comment.id);
+                        if (result.success) {
+                          // Reload comments to hide reported one
+                          const fetchedComments =
+                            await getCommentsByQuestion(questionId);
+                          setComments(fetchedComments);
+                          alert(
+                            'Մեկնաբանությունը բողոքարկվել է: Այն կստուգվի ադմինի կողմից:'
+                          );
+                        } else {
+                          alert(
+                            result.error || 'Սխալ է տեղի ունեցել բողոքարկելիս'
+                          );
+                        }
+                      }
+                    }}
+                    className="text-xs text-red-600 hover:text-red-700 flex items-center gap-1 transition-colors"
+                    title="Բողոքարկել մեկնաբանությունը"
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                      <line x1="12" y1="9" x2="12" y2="13"></line>
+                      <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    Բողոքարկել
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -296,7 +341,7 @@ export default function CommentForm({ questionId }: CommentFormProps) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="ml-auto py-3 px-8 text-white rounded-xl bg-gradient-to-r from-[#FA8604] to-[#FF9A3C] mt-2 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:scale-105 transition-all font-semibold text-base flex items-center gap-2"
+            className="ml-auto py-3 px-8 text-white rounded-xl bg-gradient-to-r cursor-pointer from-[#FA8604] to-[#FF9A3C] mt-2 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:scale-105 transition-all font-semibold text-base flex items-center gap-2"
           >
             {isSubmitting ? (
               <>

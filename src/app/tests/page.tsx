@@ -4,7 +4,7 @@ import TestsContent from './TestsContent';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Վարորդական Քննություններ | Arakelians Drive',
+  title: 'Քննական թեստեր, Վարորդական քննություններ | Arakelians Drive',
   description:
     'Պատրաստվեք վարորդական քննությանը: Առցանց թեստեր վարորդական իրավունքի համար: Տեսական քննության պատրաստություն, պրակտիկ թեստեր, հարցերի բանկ:',
   keywords:

@@ -7,14 +7,25 @@ interface RuleItem {
   content: string;
   type?: 'rule' | 'prohibition' | 'requirement' | 'definition' | 'note';
   important?: boolean;
+  title?: string;
 }
 
 interface RuleContentRendererProps {
   content: string;
+  items?: Array<{
+    id: number;
+    number: string;
+    title: string | null;
+    content: string;
+    type: string;
+    important: boolean;
+    order: number;
+  }>;
 }
 
 export default function RuleContentRenderer({
   content,
+  items: dbItems,
 }: RuleContentRendererProps) {
   const [expandedSections, setExpandedSections] = useState<Set<number>>(
     new Set()
@@ -138,7 +149,16 @@ export default function RuleContentRenderer({
     });
   };
 
-  const items = parseContent(content);
+  // Use database items if available, otherwise parse from content
+  const items: RuleItem[] = dbItems
+    ? dbItems.map((item) => ({
+        number: item.number,
+        content: item.content,
+        type: item.type as RuleItem['type'],
+        important: item.important,
+        title: item.title || undefined,
+      }))
+    : parseContent(content);
 
   const toggleSection = (index: number) => {
     const newExpanded = new Set(expandedSections);
@@ -267,6 +287,11 @@ export default function RuleContentRenderer({
                         </span>
                       )}
                     </div>
+                    {mainItem.title && (
+                      <h3 className="text-lg font-semibold text-[#1A2229] mb-2">
+                        {mainItem.title}
+                      </h3>
+                    )}
                     <div className="text-[#222] leading-relaxed text-base">
                       {mainItem.content.split('\n').map((line, lineIndex) => {
                         if (line.trim() === '') return null;

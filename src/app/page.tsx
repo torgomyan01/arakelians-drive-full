@@ -4,11 +4,11 @@ import Faq from '@/components/common/home/faq/faq';
 import Header from '@/components/common/home/header/header';
 import Reviews from '@/components/common/home/reviews/reviews';
 import WeLearning from '@/components/common/home/we-learning/we-learning';
+import FeaturedBlogs from '@/components/common/home/featured-blogs/featured-blogs';
 import Contact from '@/components/layout/contact/contact';
-import Footer from '@/components/layout/footer/footer';
 import MainTemplate from '@/components/layout/main-template/main-template';
-import Navbar from '@/components/layout/navbar/navbar';
 import { getSetting } from '@/app/actions/admin-settings';
+import { getAllBlogPosts } from '@/app/actions/admin-blogs';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -38,6 +38,9 @@ export default async function Page() {
   const telegram = await getSetting('telegram');
   const whatsapp = await getSetting('whatsapp');
 
+  // Get latest blog posts
+  const blogPosts = await getAllBlogPosts(false);
+
   return (
     <MainTemplate>
       <Header phoneNumber={phoneNumber} address={address} />
@@ -50,6 +53,8 @@ export default async function Page() {
         <AboutUs />
 
         <Reviews />
+
+        <FeaturedBlogs posts={blogPosts} />
 
         <Faq />
 

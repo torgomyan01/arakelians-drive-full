@@ -38,6 +38,11 @@ export async function getCommentsByQuestion(
     const comments = await prisma.questionComment.findMany({
       where: {
         questionId,
+        // Only show comments that are not reported or are approved
+        OR: [
+          { isReported: false } as any,
+          { isReported: true, isApproved: true } as any,
+        ],
       },
       orderBy: {
         createdAt: 'desc',
@@ -55,5 +60,43 @@ export async function getCommentsByQuestion(
   } catch (error) {
     console.error('Error fetching comments:', error);
     return [];
+  }
+}
+
+export async function reportComment(
+  commentId: number,
+  reason?: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    // Check if comment exists
+    const comment = await prisma.questionComment.findUnique({
+      where: { id: commentId },
+    });
+
+    if (!comment) {
+      return { success: false, error: 'Comment not found' };
+    }
+
+    // Create report
+    await (prisma as any).commentReport.create({
+      data: {
+        commentId,
+        reason: reason || null,
+      },
+    });
+
+    // Mark comment as reported
+    await prisma.questionComment.update({
+      where: { id: commentId },
+      data: {
+        isReported: true,
+        isApproved: false, // Hide until admin approves
+      } as any,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error reporting comment:', error);
+    return { success: false, error: 'Failed to report comment' };
   }
 }
