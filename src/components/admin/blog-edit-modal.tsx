@@ -89,6 +89,11 @@ export default function BlogEditModal({
     }
   }, [formData.title, post]);
 
+  const handleRemoveImage = () => {
+    setImagePreview(null);
+    setFormData((prev) => ({ ...prev, featuredImage: '' }));
+  };
+
   const handleImageFile = useCallback(async (file: File) => {
     const allowedTypes = [
       'image/jpeg',
@@ -276,12 +281,20 @@ export default function BlogEditModal({
               Հիմնական նկար
             </label>
             {imagePreview && (
-              <div className="mb-4">
+              <div className="mb-4 relative inline-block">
                 <img
                   src={imagePreview}
                   alt="Preview"
-                  className="max-w-full h-48 object-cover rounded-[10px]"
+                  className="max-w-full h-48 object-cover rounded-[10px] border border-gray-200"
                 />
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 active:scale-95"
+                  title="Ջնջել նկարը"
+                >
+                  <i className="fas fa-xmark text-sm"></i>
+                </button>
               </div>
             )}
             <input

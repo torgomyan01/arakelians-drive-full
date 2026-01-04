@@ -80,6 +80,30 @@
   content: '\f024';
 }
 
+.fa-user:before {
+  content: '\f007';
+}
+
+.fa-phone:before {
+  content: '\f095';
+}
+
+.fa-comment-dots:before {
+  content: '\f4ad';
+}
+
+.fa-paper-plane:before {
+  content: '\f1d8';
+}
+
+.fa-spinner:before {
+  content: '\f110';
+}
+
+.fa-exclamation-circle:before {
+  content: '\f06a';
+}
+
 /*---------------------------------*/
 
 @font-face {

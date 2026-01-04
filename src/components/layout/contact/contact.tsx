@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
+import { InputMask } from '@react-input/mask';
 
 interface ContactProps {
   phoneNumber?: string;
@@ -29,6 +30,12 @@ function Contact({
     lastName: '',
     phone: '',
     message: '',
+  });
+  const [focusedFields, setFocusedFields] = useState({
+    firstName: false,
+    lastName: false,
+    phone: false,
+    message: false,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -104,7 +111,7 @@ function Contact({
           <p
             className={`${textWhite} ${textSizeBase} mb-4 max-md:text-base max-md:mb-6`}
           >
-            Զնգի և ասա ինչ-որ բան՝ ուղիղ զրույց սկսելու համար։
+            Զանգի և ասա ինչ-որ բան՝ ուղիղ զրույց սկսելու համար։
           </p>
           <div className="flex mb-[60px] max-md:mb-5">
             <div className="flex rounded-[10px] overflow-hidden min-w-[170px] h-[190px] mr-5 max-md:min-w-[100px] max-md:h-auto max-md:mr-4">
@@ -172,60 +179,163 @@ function Contact({
           className="w-[53%] flex flex-col pr-12 max-lg:w-full max-lg:pr-0 max-md:mb-5 mt-[70px] max-[1024px]:mt-2.5"
         >
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-[10px] text-sm">
-              {error}
+            <div className="mb-6 p-4 bg-gradient-to-r from-red-50 to-red-100/50 border-l-4 border-red-500 text-red-700 rounded-[12px] text-sm shadow-md animate-fade-in">
+              <div className="flex items-center gap-2">
+                <i className="fas fa-exclamation-circle text-red-500"></i>
+                <span>{error}</span>
+              </div>
             </div>
           )}
-          <div className="grid grid-cols-2 gap-8 mb-10 max-md:grid-cols-1 max-md:gap-5 max-md:mb-5">
-            <input
-              type="text"
-              placeholder="Անուն"
-              value={formData.firstName}
-              onChange={(e) =>
-                setFormData({ ...formData, firstName: e.target.value })
-              }
-              required
-              className={inputBorder}
-            />
-            <input
-              type="text"
-              placeholder="Ազգանուն"
-              value={formData.lastName}
-              onChange={(e) =>
-                setFormData({ ...formData, lastName: e.target.value })
-              }
-              required
-              className={inputBorder}
-            />
+          <div className="grid grid-cols-2 gap-8 mb-10 max-md:grid-cols-1 max-md:gap-6 max-md:mb-8">
+            {/* First Name Input */}
+            <div className="relative group">
+              <div className="absolute left-0 top-2.5 text-[#8D8D8D] transition-all duration-300 ease-out group-focus-within:text-[#FA8604]">
+                <i className="fas fa-user text-lg"></i>
+              </div>
+              <label
+                className={`absolute left-8 transition-all duration-300 ease-out pointer-events-none ${
+                  focusedFields.firstName || formData.firstName
+                    ? 'top-0 text-xs text-[#FA8604] font-semibold'
+                    : 'top-2.5 text-[17px] text-[#8D8D8D]'
+                }`}
+              >
+                Անուն
+              </label>
+              <input
+                type="text"
+                value={formData.firstName}
+                onChange={(e) =>
+                  setFormData({ ...formData, firstName: e.target.value })
+                }
+                onFocus={() =>
+                  setFocusedFields({ ...focusedFields, firstName: true })
+                }
+                onBlur={() =>
+                  setFocusedFields({ ...focusedFields, firstName: false })
+                }
+                required
+                className="w-full border-0 border-b-2 border-b-[#E0E0E0] py-3 pl-8 pr-0 bg-transparent focus:outline-none focus:border-b-[#FA8604] transition-all duration-300 ease-out text-[#1A2229] text-[17px] pt-7 hover:border-b-[#FA8604]/60 focus:bg-gradient-to-b from-transparent to-orange-50/20"
+              />
+              <div className="absolute bottom-0 left-0 w-0 h-1 bg-gradient-to-r from-[#FA8604] via-[#FF9A3C] to-[#FA8604] transition-all duration-500 ease-out group-focus-within:w-full shadow-[0_2px_8px_rgba(250,134,4,0.4)] rounded-full"></div>
+            </div>
+
+            {/* Last Name Input */}
+            <div className="relative group">
+              <div className="absolute left-0 top-2.5 text-[#8D8D8D] transition-all duration-300 ease-out group-focus-within:text-[#FA8604]">
+                <i className="fas fa-user text-lg"></i>
+              </div>
+              <label
+                className={`absolute left-8 transition-all duration-300 ease-out pointer-events-none ${
+                  focusedFields.lastName || formData.lastName
+                    ? 'top-0 text-xs text-[#FA8604] font-semibold'
+                    : 'top-2.5 text-[17px] text-[#8D8D8D]'
+                }`}
+              >
+                Ազգանուն
+              </label>
+              <input
+                type="text"
+                value={formData.lastName}
+                onChange={(e) =>
+                  setFormData({ ...formData, lastName: e.target.value })
+                }
+                onFocus={() =>
+                  setFocusedFields({ ...focusedFields, lastName: true })
+                }
+                onBlur={() =>
+                  setFocusedFields({ ...focusedFields, lastName: false })
+                }
+                required
+                className="w-full border-0 border-b-2 border-b-[#E0E0E0] py-3 pl-8 pr-0 bg-transparent focus:outline-none focus:border-b-[#FA8604] transition-all duration-300 ease-out text-[#1A2229] text-[17px] pt-7 hover:border-b-[#FA8604]/60 focus:bg-gradient-to-b from-transparent to-orange-50/20"
+              />
+              <div className="absolute bottom-0 left-0 w-0 h-1 bg-gradient-to-r from-[#FA8604] via-[#FF9A3C] to-[#FA8604] transition-all duration-500 ease-out group-focus-within:w-full shadow-[0_2px_8px_rgba(250,134,4,0.4)] rounded-full"></div>
+            </div>
           </div>
-          <input
-            type="tel"
-            placeholder="Հեռախոսահամար"
-            value={formData.phone}
-            onChange={(e) =>
-              setFormData({ ...formData, phone: e.target.value })
-            }
-            required
-            className={`${inputBorder} mb-8`}
-          />
-          <span className={`text-xs font-medium ${textColorGray}`}>
-            Հաղորդագրություն
-          </span>
-          <textarea
-            placeholder="Գրեք ձեր խնդիրը կամ հարցը"
-            value={formData.message}
-            onChange={(e) =>
-              setFormData({ ...formData, message: e.target.value })
-            }
-            required
-            className={`${inputBorder} mt-5 mb-8 resize-none`}
-          />
+
+          {/* Phone Input */}
+          <div className="relative group mb-10">
+            <div className="absolute left-0 top-2.5 text-[#8D8D8D] transition-all duration-300 ease-out group-focus-within:text-[#FA8604]">
+              <i className="fas fa-phone text-lg"></i>
+            </div>
+            <label
+              className={`absolute left-8 transition-all duration-300 ease-out pointer-events-none ${
+                focusedFields.phone || formData.phone
+                  ? 'top-0 text-xs text-[#FA8604] font-semibold'
+                  : 'top-2.5 text-[17px] text-[#8D8D8D]'
+              }`}
+            >
+              Հեռախոսահամար
+            </label>
+            <InputMask
+              mask="+374 __ ___ ___"
+              replacement={{ _: /\d/ }}
+              type="tel"
+              value={formData.phone}
+              onChange={(e) =>
+                setFormData({ ...formData, phone: e.target.value })
+              }
+              onFocus={() =>
+                setFocusedFields({ ...focusedFields, phone: true })
+              }
+              onBlur={() =>
+                setFocusedFields({ ...focusedFields, phone: false })
+              }
+              required
+              className="w-full border-0 border-b-2 border-b-[#E0E0E0] py-3 pl-8 pr-0 bg-transparent focus:outline-none focus:border-b-[#FA8604] transition-all duration-300 ease-out text-[#1A2229] text-[17px] pt-7 hover:border-b-[#FA8604]/60 focus:bg-gradient-to-b from-transparent to-orange-50/20"
+            />
+            <div className="absolute bottom-0 left-0 w-0 h-1 bg-gradient-to-r from-[#FA8604] via-[#FF9A3C] to-[#FA8604] transition-all duration-500 ease-out group-focus-within:w-full shadow-[0_2px_8px_rgba(250,134,4,0.4)] rounded-full"></div>
+          </div>
+
+          {/* Message Textarea */}
+          <div className="relative group mb-8">
+            <div className="absolute left-0 top-5 text-[#8D8D8D] transition-all duration-300 ease-out group-focus-within:text-[#FA8604]">
+              <i className="fas fa-comment-dots text-lg"></i>
+            </div>
+            <label
+              className={`absolute left-8 transition-all duration-300 ease-out pointer-events-none ${
+                focusedFields.message || formData.message
+                  ? 'top-0 text-xs text-[#FA8604] font-semibold'
+                  : 'top-5 text-[17px] text-[#8D8D8D]'
+              }`}
+            >
+              Հաղորդագրություն
+            </label>
+            <textarea
+              value={formData.message}
+              onChange={(e) =>
+                setFormData({ ...formData, message: e.target.value })
+              }
+              onFocus={() =>
+                setFocusedFields({ ...focusedFields, message: true })
+              }
+              onBlur={() =>
+                setFocusedFields({ ...focusedFields, message: false })
+              }
+              required
+              rows={5}
+              className="w-full border-0 border-b-2 border-b-[#E0E0E0] py-3 pl-8 pr-0 bg-transparent focus:outline-none focus:border-b-[#FA8604] transition-all duration-300 ease-out text-[#1A2229] text-[17px] pt-9 mb-8 resize-none min-h-[140px] hover:border-b-[#FA8604]/60 focus:bg-gradient-to-b from-transparent to-orange-50/20"
+            />
+            <div className="absolute bottom-8 left-0 w-0 h-1 bg-gradient-to-r from-[#FA8604] via-[#FF9A3C] to-[#FA8604] transition-all duration-500 ease-out group-focus-within:w-full shadow-[0_2px_8px_rgba(250,134,4,0.4)] rounded-full"></div>
+          </div>
           <button
             type="submit"
             disabled={loading}
-            className="rounded-[10px] bg-[linear-gradient(90deg,#FA8604_0%,rgba(250,134,4,0.6)_100%)] cursor-pointer py-2 px-[35px] text-[22px] text-white self-end max-lg:self-center disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-[#FA8604]/50 hover:bg-[linear-gradient(90deg,#e67503_0%,rgba(230,117,3,0.7)_100%)] active:scale-95"
+            className="relative rounded-[12px] bg-gradient-to-r from-[#FA8604] via-[#FF9A3C] to-[#FA8604] cursor-pointer py-3.5 px-[45px] text-[20px] font-semibold text-white self-end max-lg:self-center disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 ease-out hover:scale-105 hover:shadow-xl hover:shadow-[#FA8604]/40 hover:from-[#e67503] hover:via-[#FF9A3C] hover:to-[#e67503] active:scale-95 overflow-hidden group"
           >
-            {loading ? 'Ուղարկվում է...' : 'Ուղարկել'}
+            <span className="relative z-10 flex items-center gap-2">
+              {loading ? (
+                <>
+                  <i className="fas fa-spinner fa-spin"></i>
+                  <span>Ուղարկվում է...</span>
+                </>
+              ) : (
+                <>
+                  <i className="fas fa-paper-plane"></i>
+                  <span>Ուղարկել</span>
+                </>
+              )}
+            </span>
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out"></div>
           </button>
         </form>
       </div>
