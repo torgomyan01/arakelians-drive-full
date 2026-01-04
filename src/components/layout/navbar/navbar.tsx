@@ -79,7 +79,7 @@ function Navbar() {
         id="header"
         className={`top-0 w-full fixed ${isScrolled ? 'shadow' : ''} z-100 py-5 max-md:py-2.5 bg-white`}
       >
-        <div className="container px-0!">
+        <div className="container md:px-0!">
           <div className="flex items-center justify-between">
             <Link
               href={SITE_URL.HOME}
