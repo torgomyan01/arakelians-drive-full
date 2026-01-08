@@ -165,3 +165,27 @@ model RuleItem {
   @@index([sectionId, order])
   @@map("rule_items")
 }
+
+model PsychologicalQuestion {
+  id                  Int                        @id @default(autoincrement())
+  jsonId              String                     @db.VarChar(255)
+  title               String                     @db.Text
+  img                 String?                    @db.VarChar(255)
+  correctAnswerIndex  Int
+  isRealPsychological Boolean                    @default(false)
+  options             PsychologicalQuestionOption[]
+
+  @@unique([jsonId])
+  @@map("psychological_questions")
+}
+
+model PsychologicalQuestionOption {
+  id          Int                  @id @default(autoincrement())
+  text        String               @db.Text
+  order       Int
+  questionId  Int
+  question    PsychologicalQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, order])
+  @@map("psychological_question_options")
+}

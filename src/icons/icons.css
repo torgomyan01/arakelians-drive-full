@@ -44,6 +44,10 @@
   content: '\f059';
 }
 
+.fa-brain:before {
+  content: '\f5dc';
+}
+
 .fa-blog:before {
   content: '\f781';
 }

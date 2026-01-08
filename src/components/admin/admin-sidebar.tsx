@@ -43,6 +43,11 @@ const menuItems: MenuItem[] = [
     icon: 'fa-question-circle',
   },
   {
+    label: 'Հոգեբանական Հարցեր',
+    href: '/admin/psychological-questions',
+    icon: 'fa-brain',
+  },
+  {
     label: 'Բլոգ',
     href: '/admin/blogs',
     icon: 'fa-blog',
