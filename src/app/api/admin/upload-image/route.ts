@@ -6,8 +6,8 @@ import { UPLOAD_CONFIG } from '@/utils/upload-config';
 // Set runtime to nodejs for file system operations
 export const runtime = 'nodejs';
 
-// Increase max duration for large file uploads
-export const maxDuration = 60;
+// Increase max duration for large file uploads (up to 5 minutes for 50MB files)
+export const maxDuration = 300;
 
 export async function POST(request: NextRequest) {
   try {

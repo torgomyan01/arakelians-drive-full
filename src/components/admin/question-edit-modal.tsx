@@ -131,10 +131,10 @@ export default function QuestionEditModal({
       return;
     }
 
-    // Validate file size (max 10MB)
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    // Validate file size (max 50MB)
+    const maxSize = 50 * 1024 * 1024; // 50MB
     if (file.size > maxSize) {
-      setError('Ֆայլի չափը չպետք է գերազանցի 10MB');
+      setError('Ֆայլի չափը չպետք է գերազանցի 50MB');
       return;
     }
 
@@ -523,7 +523,7 @@ export default function QuestionEditModal({
                       <button
                         type="button"
                         onClick={() => handleRemoveOption(index)}
-                        className="mt-8 px-3 py-2 rounded-[10px] bg-red-500 hover:bg-red-600 text-white font-medium transition-colors flex-shrink-0"
+                        className="mt-8 px-3 py-2 rounded-[10px] bg-red-500 hover:bg-red-600 text-white font-medium transition-colors shrink-0"
                         title="Հեռացնել տարբերակ"
                       >
                         ×

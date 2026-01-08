@@ -32,6 +32,6 @@ export const UPLOAD_CONFIG = {
     'image/webp',
   ],
 
-  // Max file size (10MB)
-  MAX_FILE_SIZE: 10 * 1024 * 1024,
+  // Max file size (50MB)
+  MAX_FILE_SIZE: 50 * 1024 * 1024,
 };
