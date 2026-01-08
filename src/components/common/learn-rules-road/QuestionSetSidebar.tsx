@@ -59,11 +59,11 @@ export default function QuestionSetSidebar({
             <MenuItem value="" disabled>
               <em>Ընտրեք հարցաշարը</em>
             </MenuItem>
-            {items.map((id) => {
+            {items.map((id, index) => {
               const category = categoryMap.get(id);
               return (
                 <MenuItem key={id} value={String(id)}>
-                  {category?.name || `Հարցաշար ${id}`}
+                  {`${index + 1}. ${category?.name}` || `Հարցաշար ${id}`}
                 </MenuItem>
               );
             })}
@@ -75,7 +75,7 @@ export default function QuestionSetSidebar({
       <div
         className={`py-5 px-4 ${bgOrange} flex-js-s flex-col rounded-[20px] min-w-[290px] w-[290px] max-[1200px]:w-[250px] max-[1200px]:min-w-[250px] max-[1024px]:min-w-full max-[1024px]:w-full max-[1024px]:hidden`}
       >
-        {items.map((id) => {
+        {items.map((id, index) => {
           const category = categoryMap.get(id);
           const categoryName = category?.name || `Հարցաշար ${id}`;
           return (
@@ -93,7 +93,7 @@ export default function QuestionSetSidebar({
                   'cursor-pointer hover:bg-white/40'
                 )}
               >
-                {categoryName}
+                {`${index + 1}. ${categoryName}`}
               </button>
             </Tooltip>
           );

@@ -1,5 +1,7 @@
 const TEST_STORAGE_KEY = 'test_answers';
 const TEST_TIMER_KEY = 'test_timer';
+const TEST_SCREENING_KEY = 'test_screening';
+const TEST_SCREENING_QUESTIONS_KEY = 'test_screening_questions';
 
 export interface TestAnswer {
   questionId: number;
@@ -169,5 +171,148 @@ export function getTestResult(
   } catch (error) {
     console.error('Error getting test result:', error);
     return null;
+  }
+}
+
+// Pre-test screening storage functions
+export interface ScreeningAnswer {
+  questionId: number;
+  selectedAnswer: number;
+  isCorrect: boolean;
+  testId: number;
+}
+
+export function saveScreeningAnswer(
+  testId: number,
+  answer: Omit<ScreeningAnswer, 'testId'>
+): void {
+  if (typeof window === 'undefined') return;
+
+  try {
+    const existingAnswers = getScreeningAnswers(testId);
+    const updatedAnswers = existingAnswers.filter(
+      (a) => a.questionId !== answer.questionId
+    );
+    updatedAnswers.push({ ...answer, testId });
+    const allScreenings = getAllScreeningAnswers();
+    const otherScreenings = allScreenings.filter((a) => a.testId !== testId);
+    localStorage.setItem(
+      TEST_SCREENING_KEY,
+      JSON.stringify([...otherScreenings, ...updatedAnswers])
+    );
+  } catch (error) {
+    console.error('Error saving screening answer:', error);
+  }
+}
+
+export function getScreeningAnswers(testId: number): ScreeningAnswer[] {
+  if (typeof window === 'undefined') return [];
+
+  try {
+    const allAnswers = getAllScreeningAnswers();
+    return allAnswers.filter((a) => a.testId === testId);
+  } catch (error) {
+    console.error('Error reading screening answers:', error);
+    return [];
+  }
+}
+
+function getAllScreeningAnswers(): ScreeningAnswer[] {
+  if (typeof window === 'undefined') return [];
+
+  try {
+    const stored = localStorage.getItem(TEST_SCREENING_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch (error) {
+    console.error('Error reading all screening answers:', error);
+    return [];
+  }
+}
+
+export function getScreeningAnswer(
+  testId: number,
+  questionId: number
+): ScreeningAnswer | null {
+  const answers = getScreeningAnswers(testId);
+  return answers.find((a) => a.questionId === questionId) || null;
+}
+
+export function clearScreeningAnswers(testId: number): void {
+  if (typeof window === 'undefined') return;
+
+  try {
+    const allAnswers = getAllScreeningAnswers();
+    const filtered = allAnswers.filter((a) => a.testId !== testId);
+    localStorage.setItem(TEST_SCREENING_KEY, JSON.stringify(filtered));
+  } catch (error) {
+    console.error('Error clearing screening answers:', error);
+  }
+}
+
+export function isScreeningPassed(testId: number): boolean {
+  const answers = getScreeningAnswers(testId);
+  if (answers.length !== 3) return false;
+  return answers.every((a) => a.isCorrect);
+}
+
+// Store and retrieve screening question IDs to ensure same questions are shown until screening is passed
+export function saveScreeningQuestionIds(
+  testId: number,
+  questionIds: number[]
+): void {
+  if (typeof window === 'undefined') return;
+
+  try {
+    const allScreenings = getAllScreeningQuestionIds();
+    const otherScreenings = allScreenings.filter((s) => s.testId !== testId);
+    localStorage.setItem(
+      TEST_SCREENING_QUESTIONS_KEY,
+      JSON.stringify([...otherScreenings, { testId, questionIds }])
+    );
+  } catch (error) {
+    console.error('Error saving screening question IDs:', error);
+  }
+}
+
+export function getScreeningQuestionIds(testId: number): number[] | null {
+  if (typeof window === 'undefined') return null;
+
+  try {
+    const allScreenings = getAllScreeningQuestionIds();
+    const screening = allScreenings.find((s) => s.testId === testId);
+    return screening ? screening.questionIds : null;
+  } catch (error) {
+    console.error('Error reading screening question IDs:', error);
+    return null;
+  }
+}
+
+function getAllScreeningQuestionIds(): Array<{
+  testId: number;
+  questionIds: number[];
+}> {
+  if (typeof window === 'undefined') return [];
+
+  try {
+    const stored = localStorage.getItem(TEST_SCREENING_QUESTIONS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch (error) {
+    console.error('Error reading all screening question IDs:', error);
+    return [];
+  }
+}
+
+export function clearScreeningQuestionIds(testId: number): void {
+  if (typeof window === 'undefined') return;
+
+  try {
+    const allScreenings = getAllScreeningQuestionIds();
+    const filtered = allScreenings.filter((s) => s.testId !== testId);
+    localStorage.setItem(
+      TEST_SCREENING_QUESTIONS_KEY,
+      JSON.stringify(filtered)
+    );
+  } catch (error) {
+    console.error('Error clearing screening question IDs:', error);
   }
 }

@@ -10,9 +10,6 @@
     "build": "prisma generate && next build",
     "postinstall": "prisma generate",
     "start": "next start -p 3000",
-    "populate": "node scripts/populate-lessons.js",
-    "create-admin": "node scripts/create-admin.js",
-    "migrate-rules": "tsx scripts/migrate-rules-to-db.ts",
     "lint": "next lint",
     "lint:fix": "eslint --fix",
     "format": "prettier --write ."
