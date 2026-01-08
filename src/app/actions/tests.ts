@@ -79,14 +79,6 @@ export async function generateTest(testId: number): Promise<TestQuestion[]> {
   }
 }
 
-/**
- * Get all available tests (we'll generate them on-demand)
- * Calculates maximum number of tests based on total questions available
- * Each test MUST have exactly 20 questions
- * All questions must be included in tests (no questions left out)
- * When a category runs out of questions, we take more from other categories
- * Similar to xdrive.am logic: tests are numbered 1, 2, 3... up to max possible
- */
 export async function getAllTests(): Promise<
   { id: number; questionCount: number }[]
 > {
@@ -111,33 +103,93 @@ export async function getAllTests(): Promise<
 
     const questionsPerTest = 20; // Fixed: each test must have exactly 20 questions
 
+    // Calculate how many questions each category contributes per test
+    // and find the minimum number of tests before any category runs out
+    let maxTestsBeforeCategoryRunsOut = Infinity;
+
+    for (const category of categories) {
+      const questionsPerCategoryPerTest = getQuestionsPerCategory(category.id);
+      const totalQuestionsInCategory = category._count.questions;
+
+      if (questionsPerCategoryPerTest > 0 && totalQuestionsInCategory > 0) {
+        // How many tests can we create before this category runs out?
+        const testsFromThisCategory = Math.floor(
+          totalQuestionsInCategory / questionsPerCategoryPerTest
+        );
+        maxTestsBeforeCategoryRunsOut = Math.min(
+          maxTestsBeforeCategoryRunsOut,
+          testsFromThisCategory
+        );
+      }
+    }
+
     // Calculate total available questions
     const totalQuestions = categories.reduce(
       (sum, cat) => sum + cat._count.questions,
       0
     );
 
-    // Calculate number of tests: ceil(totalQuestions / 20) to include all questions
-    // But we prefer tests with exactly 20 questions, so we use floor for full tests
-    // and add one more test if there are remaining questions
-    const fullTests = Math.floor(totalQuestions / questionsPerTest);
-    const remainingQuestions = totalQuestions % questionsPerTest;
-    const numberOfTests = remainingQuestions > 0 ? fullTests + 1 : fullTests;
+    // Validate: ensure we have enough questions to create at least one test
+    if (totalQuestions < questionsPerTest) {
+      console.warn(
+        `Not enough questions to create a test. Total: ${totalQuestions}, Required: ${questionsPerTest}`
+      );
+      // Return empty array if we don't have enough questions for even one test
+      if (totalQuestions === 0) {
+        return [];
+      }
+    }
+
+    // Calculate number of tests
+    // We can create tests until categories run out, then distribute remaining questions
+    const fullTests =
+      maxTestsBeforeCategoryRunsOut === Infinity
+        ? Math.floor(totalQuestions / questionsPerTest)
+        : maxTestsBeforeCategoryRunsOut;
+
+    // Ensure fullTests is at least 0
+    const safeFullTests = Math.max(0, fullTests);
+
+    // Calculate remaining questions after full tests
+    let remainingQuestions = totalQuestions;
+    for (const category of categories) {
+      const questionsPerCategoryPerTest = getQuestionsPerCategory(category.id);
+      const questionsUsedInFullTests =
+        safeFullTests * questionsPerCategoryPerTest;
+      const questionsInCategory = category._count.questions;
+      remainingQuestions -= Math.min(
+        questionsUsedInFullTests,
+        questionsInCategory
+      );
+    }
+
+    // Ensure remainingQuestions is non-negative
+    remainingQuestions = Math.max(0, remainingQuestions);
+
+    // If we have remaining questions, we can create additional tests
+    // (each will have exactly 20 questions by redistributing from categories with remaining questions)
+    const additionalTests =
+      remainingQuestions >= questionsPerTest
+        ? Math.floor(remainingQuestions / questionsPerTest)
+        : 0;
+
+    const numberOfTests = safeFullTests + additionalTests;
+
+    // Ensure we have at least one test if there are any questions
+    const finalNumberOfTests =
+      totalQuestions > 0 && numberOfTests === 0 ? 1 : numberOfTests;
 
     console.log('Total questions:', totalQuestions);
     console.log('Questions per test:', questionsPerTest);
     console.log('Full tests (20 questions each):', fullTests);
-    console.log('Remaining questions:', remainingQuestions);
-    console.log('Total tests:', numberOfTests);
+    console.log('Remaining questions after full tests:', remainingQuestions);
+    console.log('Total tests:', finalNumberOfTests);
 
-    // Generate all possible tests (1, 2, 3, ... numberOfTests)
-    // Similar to xdrive.am where tests are numbered sequentially
-    const tests = Array.from({ length: numberOfTests }, (_, i) => ({
+    // Generate all possible tests (1, 2, 3, ... finalNumberOfTests)
+    // All tests will have exactly 20 questions (the logic in getTestById ensures this)
+    const tests = Array.from({ length: finalNumberOfTests }, (_, i) => ({
       id: i + 1,
-      questionCount:
-        i < fullTests
-          ? questionsPerTest
-          : remainingQuestions || questionsPerTest, // Last test may have fewer questions
+      questionCount: questionsPerTest, // All tests have exactly 20 questions
     }));
 
     return tests;
@@ -148,12 +200,27 @@ export async function getAllTests(): Promise<
 }
 
 /**
+ * Get questions per category for a specific test
+ * Special cases:
+ * - Category ID 18: 3 questions per test
+ * - Category ID 24: 1 question per test
+ * - All other categories: 2 questions per test
+ */
+function getQuestionsPerCategory(categoryId: number): number {
+  if (categoryId === 18) return 3;
+  if (categoryId === 24) return 1;
+  return 2;
+}
+
+/**
  * Get a specific test by ID
  * Uses a deterministic approach to ensure same test ID always returns same questions
  * Ensures questions don't repeat across tests by using sequential distribution
  * Each test MUST have exactly 20 questions
- * Test 1 gets questions 0,1 from each category (if available)
- * Test 2 gets questions 2,3 from each category (if available)
+ * Distribution:
+ * - Category 18: 3 questions per test
+ * - Category 24: 1 question per test
+ * - All other categories: 2 questions per test
  * When a category runs out, we take more questions from other categories
  */
 export async function getTestById(testId: number): Promise<TestQuestion[]> {
@@ -165,13 +232,17 @@ export async function getTestById(testId: number): Promise<TestQuestion[]> {
     });
 
     const questionsPerTest = 20; // Fixed: each test must have exactly 20 questions
-    const idealQuestionsPerCategory = 2; // Ideally 2 questions per category
 
-    // First, try to get 2 questions from each category
+    // First, try to get questions from each category based on their specific rules
     const categoryQuestionsMap: Map<number, TestQuestion[]> = new Map();
     const questionsFromCategories: TestQuestion[] = [];
 
+    // Track how many questions we've used from each category across all previous tests
+    const categoryUsedCounts: Map<number, number> = new Map();
+
     for (const category of categories) {
+      const questionsPerCategoryForTest = getQuestionsPerCategory(category.id);
+
       const categoryQuestions = await prisma.question.findMany({
         where: {
           lessonCategoryId: category.id,
@@ -198,15 +269,26 @@ export async function getTestById(testId: number): Promise<TestQuestion[]> {
         },
       });
 
-      if (categoryQuestions.length === 0) continue;
+      if (categoryQuestions.length === 0) {
+        categoryUsedCounts.set(category.id, 0);
+        continue;
+      }
 
-      // Calculate start index: Test 1 -> 0, Test 2 -> 2, Test 3 -> 4, etc.
-      const startIndex = (testId - 1) * idealQuestionsPerCategory;
+      // Calculate how many questions have been used from this category in previous tests
+      // For test 1: 0 questions used
+      // For test 2: questionsPerCategoryForTest questions used
+      // For test 3: 2 * questionsPerCategoryForTest questions used, etc.
+      const questionsUsedBeforeThisTest =
+        (testId - 1) * questionsPerCategoryForTest;
+      categoryUsedCounts.set(category.id, questionsUsedBeforeThisTest);
 
-      // Get questions for this category
+      // Calculate start index for this test
+      const startIndex = questionsUsedBeforeThisTest;
+
+      // Get questions for this category for this test
       if (startIndex < categoryQuestions.length) {
         const endIndex = Math.min(
-          startIndex + idealQuestionsPerCategory,
+          startIndex + questionsPerCategoryForTest,
           categoryQuestions.length
         );
         const selected = categoryQuestions.slice(startIndex, endIndex);
@@ -216,14 +298,8 @@ export async function getTestById(testId: number): Promise<TestQuestion[]> {
     }
 
     // Calculate how many questions we need for this test
-    // Get total questions to determine if this is the last test
-    const totalQuestions = await prisma.question.count();
-    const fullTests = Math.floor(totalQuestions / questionsPerTest);
-    const remainingQuestions = totalQuestions % questionsPerTest;
-    const isLastTest = testId > fullTests;
-    const questionsNeededForThisTest = isLastTest
-      ? remainingQuestions || questionsPerTest
-      : questionsPerTest;
+    // All tests should have exactly 20 questions
+    const questionsNeededForThisTest = questionsPerTest;
 
     // If we have less than needed questions, we need to get more from categories that have remaining questions
     if (questionsFromCategories.length < questionsNeededForThisTest) {
@@ -231,7 +307,10 @@ export async function getTestById(testId: number): Promise<TestQuestion[]> {
         questionsNeededForThisTest - questionsFromCategories.length;
 
       // Get all remaining questions from all categories (not already used in this test)
-      const remainingQuestionsList: TestQuestion[] = [];
+      // Group by category to maintain category order
+      const remainingQuestionsByCategory: Map<number, TestQuestion[]> =
+        new Map();
+
       for (const category of categories) {
         const categoryQuestions = await prisma.question.findMany({
           where: {
@@ -268,28 +347,79 @@ export async function getTestById(testId: number): Promise<TestQuestion[]> {
         const remaining = categoryQuestions.filter(
           (q) => !alreadyUsedIds.has(q.id)
         );
-        remainingQuestionsList.push(...remaining);
+
+        if (remaining.length > 0) {
+          remainingQuestionsByCategory.set(category.id, remaining);
+        }
       }
 
-      // Take needed questions from remaining questions
-      const additionalQuestions = remainingQuestionsList.slice(0, needed);
-      questionsFromCategories.push(...additionalQuestions);
-    }
+      // Rebuild questions list maintaining category order
+      const finalQuestions: TestQuestion[] = [];
 
-    // Trim to exactly the number of questions needed for this test
-    if (questionsFromCategories.length > questionsNeededForThisTest) {
-      questionsFromCategories.splice(questionsNeededForThisTest);
+      // First add questions from categories in order (already selected)
+      for (const category of categories) {
+        const categoryQuestions = categoryQuestionsMap.get(category.id) || [];
+        finalQuestions.push(...categoryQuestions);
+      }
+
+      // Then add additional questions, maintaining category order
+      for (const category of categories) {
+        if (finalQuestions.length >= questionsNeededForThisTest) break;
+
+        const remaining = remainingQuestionsByCategory.get(category.id) || [];
+        const toTake = Math.min(
+          questionsNeededForThisTest - finalQuestions.length,
+          remaining.length
+        );
+        finalQuestions.push(...remaining.slice(0, toTake));
+      }
+
+      // Replace the questions array with the properly ordered one
+      questionsFromCategories.length = 0;
+      questionsFromCategories.push(...finalQuestions);
+    } else {
+      // If we have enough questions, rebuild to maintain category order
+      const finalQuestions: TestQuestion[] = [];
+      for (const category of categories) {
+        const categoryQuestions = categoryQuestionsMap.get(category.id) || [];
+        finalQuestions.push(...categoryQuestions);
+      }
+      questionsFromCategories.length = 0;
+      questionsFromCategories.push(...finalQuestions);
     }
 
     // Ensure we have the correct number of questions
     if (questionsFromCategories.length !== questionsNeededForThisTest) {
-      console.warn(
-        `Test ${testId}: Expected ${questionsNeededForThisTest} questions, got ${questionsFromCategories.length}`
-      );
+      // If we have more questions than needed, trim to exactly 20
+      if (questionsFromCategories.length > questionsNeededForThisTest) {
+        questionsFromCategories.splice(questionsNeededForThisTest);
+      } else if (questionsFromCategories.length < questionsNeededForThisTest) {
+        // If we have fewer questions than needed, this means we've run out of questions
+        // This can happen if testId exceeds the number of available tests
+        console.warn(
+          `Test ${testId}: Expected ${questionsNeededForThisTest} questions, got ${questionsFromCategories.length}. ` +
+            `This test may not have enough questions available.`
+        );
+
+        // If we have no questions at all, return empty array
+        if (questionsFromCategories.length === 0) {
+          return [];
+        }
+
+        // Otherwise, return what we have (less than 20 questions)
+        // This shouldn't happen if getAllTests() is called correctly
+      }
     }
 
-    // Shuffle and return
-    return shuffleQuestions(questionsFromCategories, testId);
+    // Final validation: ensure we have at least some questions
+    if (questionsFromCategories.length === 0) {
+      console.error(`Test ${testId}: No questions available for this test`);
+      return [];
+    }
+
+    // Return questions in category order (no shuffle)
+    // Questions are already ordered by category ID, then by question ID within each category
+    return questionsFromCategories;
   } catch (error) {
     console.error('Error getting test by ID:', error);
     return [];

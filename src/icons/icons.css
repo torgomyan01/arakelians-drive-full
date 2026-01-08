@@ -48,6 +48,10 @@
   content: '\f5dc';
 }
 
+.fa-graduation-cap:before {
+  content: '\f19d';
+}
+
 .fa-blog:before {
   content: '\f781';
 }

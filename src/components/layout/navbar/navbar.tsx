@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import TestsDropdown from './TestsDropdown';
 
 const navItems = [
   {
@@ -102,6 +103,18 @@ function Navbar() {
                 const isActive =
                   pathname === item.href ||
                   pathname.startsWith(item.href + '/');
+
+                // Check if this is the Tests item
+                if (item.label === 'Թեստեր') {
+                  return (
+                    <TestsDropdown
+                      key={item.href}
+                      onClose={closeMenu}
+                      linkBase={linkBase}
+                    />
+                  );
+                }
+
                 return (
                   <li
                     key={item.href}

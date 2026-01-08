@@ -2,6 +2,7 @@ export const SITE_URL = {
   HOME: '/',
   QUIZ: '/quiz',
   TESTS: '/tests',
+  PSYCHOLOGICAL_TESTS: '/psychological-tests',
   CONTACT: '/contact',
   ABOUT: '/about',
   FAQ: '/faq',

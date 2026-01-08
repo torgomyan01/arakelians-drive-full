@@ -282,63 +282,65 @@ export default function TestContent({ testId }: TestContentProps) {
         <div className="rounded-2xl bg-white shadow-xl p-9 pr-5 max-[1200px]:p-5 max-[767px]:p-0 max-[767px]:shadow-none mb-[100px] max-[767px]:mb-8">
           {selectedQuestion ? (
             <div className="flex max-[767px]:flex-col">
-              <div className="grow">
-                <QuestionCard
-                  question={selectedQuestion}
-                  selectedAnswer={selectedAnswers[selectedQuestion.id]}
-                  onAnswerSelect={(questionId, optionIndex) =>
-                    handleAnswerSelect(questionId, optionIndex)
-                  }
-                  showResults={testCompleted}
-                />
+              <div className="grow flex-jc-s">
+                <div className="w-full max-w-[600px]">
+                  <QuestionCard
+                    question={selectedQuestion}
+                    selectedAnswer={selectedAnswers[selectedQuestion.id]}
+                    onAnswerSelect={(questionId, optionIndex) =>
+                      handleAnswerSelect(questionId, optionIndex)
+                    }
+                    showResults={testCompleted}
+                  />
 
-                <div className="flex justify-between items-center my-6">
-                  <button
-                    onClick={() => {
-                      if (selectedQuestionIndex > 0) {
-                        setSelectedQuestionIndex(selectedQuestionIndex - 1);
-                      }
-                    }}
-                    disabled={selectedQuestionIndex === 0}
-                    className={`flex items-center ${textColorBlack} text-base disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer`}
-                  >
-                    <Image
-                      src="/images/back-arr.svg"
-                      width={20}
-                      height={20}
-                      alt=""
-                      className="mr-2.5"
-                    />
-                    հետ
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      if (selectedQuestionIndex < questions.length - 1) {
-                        setSelectedQuestionIndex(selectedQuestionIndex + 1);
-                      }
-                    }}
-                    disabled={selectedQuestionIndex === questions.length - 1}
-                    className="inline-flex rounded-[30px] cursor-pointer bg-[linear-gradient(90deg,#FA8604_0%,rgba(250,134,4,0.6)_100%)] px-6 py-2 text-[17px] text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Հաջորդ
-                    <img
-                      src="images/arr-w-right.svg"
-                      alt=""
-                      className="ml-2.5"
-                    />
-                  </button>
-                </div>
-
-                <div className="flex justify-center">
-                  {!testCompleted && (
+                  <div className="flex justify-between items-center my-6">
                     <button
-                      onClick={handleSubmitTest}
-                      className="inline-flex rounded-[30px] cursor-pointer bg-[linear-gradient(90deg,#FA8604_0%,rgba(250,134,4,0.6)_100%)] px-6 py-2 text-[17px] text-white hover:opacity-90 transition-opacity"
+                      onClick={() => {
+                        if (selectedQuestionIndex > 0) {
+                          setSelectedQuestionIndex(selectedQuestionIndex - 1);
+                        }
+                      }}
+                      disabled={selectedQuestionIndex === 0}
+                      className={`flex items-center ${textColorBlack} text-base disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer`}
                     >
-                      Ավարտել թեստը
+                      <Image
+                        src="/images/back-arr.svg"
+                        width={20}
+                        height={20}
+                        alt=""
+                        className="mr-2.5"
+                      />
+                      հետ
                     </button>
-                  )}
+
+                    <button
+                      onClick={() => {
+                        if (selectedQuestionIndex < questions.length - 1) {
+                          setSelectedQuestionIndex(selectedQuestionIndex + 1);
+                        }
+                      }}
+                      disabled={selectedQuestionIndex === questions.length - 1}
+                      className="inline-flex rounded-[30px] cursor-pointer bg-[linear-gradient(90deg,#FA8604_0%,rgba(250,134,4,0.6)_100%)] px-6 py-2 text-[17px] text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Հաջորդ
+                      <img
+                        src="images/arr-w-right.svg"
+                        alt=""
+                        className="ml-2.5"
+                      />
+                    </button>
+                  </div>
+
+                  <div className="flex justify-center">
+                    {!testCompleted && (
+                      <button
+                        onClick={handleSubmitTest}
+                        className="inline-flex rounded-[30px] cursor-pointer bg-[linear-gradient(90deg,#FA8604_0%,rgba(250,134,4,0.6)_100%)] px-6 py-2 text-[17px] text-white hover:opacity-90 transition-opacity"
+                      >
+                        Ավարտել թեստը
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
 

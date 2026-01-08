@@ -230,7 +230,7 @@ export default function LearnRulesRoadContent() {
               </div>
             ) : selectedQuestion ? (
               <div className="flex max-[767px]:flex-col">
-                <div className="grow">
+                <div className="grow ">
                   <QuestionCard
                     question={selectedQuestion}
                     selectedAnswer={selectedAnswers[selectedQuestion.id]}
