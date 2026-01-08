@@ -16,7 +16,9 @@ const nextConfig = {
   },
   experimental: {
     esmExternals: true,
-    serverActions: {},
+    serverActions: {
+      bodySizeLimit: '20mb', // Increase body size limit for file uploads
+    },
   },
   transpilePackages: ['@mep-agency/next-iubenda'],
   reactStrictMode: true,

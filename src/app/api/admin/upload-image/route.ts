@@ -3,6 +3,12 @@ import { writeFile, mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
 import { UPLOAD_CONFIG } from '@/utils/upload-config';
 
+// Set runtime to nodejs for file system operations
+export const runtime = 'nodejs';
+
+// Increase max duration for large file uploads
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();

@@ -129,10 +129,10 @@ export default function PsychologicalQuestionEditModal({
       return;
     }
 
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    // Validate file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB
     if (file.size > maxSize) {
-      setError('Ֆայլի չափը չպետք է գերազանցի 5MB');
+      setError('Ֆայլի չափը չպետք է գերազանցի 10MB');
       return;
     }
 
