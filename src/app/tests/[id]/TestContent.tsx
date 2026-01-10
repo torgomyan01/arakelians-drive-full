@@ -224,8 +224,14 @@ export default function TestContent({ testId }: TestContentProps) {
         </ul>
 
         <div className="flex justify-between items-center mb-8 max-[767px]:flex-col max-[767px]:items-start max-[767px]:gap-4">
-          <h1 className="global-title max-[1024px]:mb-0">Թեստ #{testId}</h1>
-
+          <h1 className="global-title mb-0!">Թեստ {testId}</h1>
+          <Image
+            src="/images/ARAKELIANS-DRIVE.svg"
+            alt=""
+            width={400}
+            height={100}
+            className="w-full max-w-[400px] h-auto mb-6 md:mb-0"
+          />
           {/* Timer */}
           <div
             className={`${bgOrange} text-white px-6 py-3 rounded-[20px] text-xl font-bold ${
@@ -324,7 +330,7 @@ export default function TestContent({ testId }: TestContentProps) {
                     >
                       Հաջորդ
                       <img
-                        src="images/arr-w-right.svg"
+                        src="/images/arr-w-right.svg"
                         alt=""
                         className="ml-2.5"
                       />

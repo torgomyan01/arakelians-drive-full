@@ -218,7 +218,7 @@ export default function PsychologicalTestsContent() {
                   >
                     Հաջորդ
                     <img
-                      src="images/arr-w-right.svg"
+                      src="/images/arr-w-right.svg"
                       alt=""
                       className="ml-2.5"
                     />

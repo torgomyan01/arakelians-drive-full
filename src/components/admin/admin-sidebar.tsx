@@ -16,9 +16,10 @@ import { getReportedCommentsCount } from '@/app/actions/admin-comments';
 
 interface MenuItem {
   label: string;
-  href: string;
+  href?: string;
   icon?: string;
   badgeCount?: number;
+  children?: MenuItem[];
 }
 
 const menuItems: MenuItem[] = [
@@ -53,9 +54,40 @@ const menuItems: MenuItem[] = [
     icon: 'fa-blog',
   },
   {
-    label: 'Ճանապարհային Կանոններ',
-    href: '/admin/rules',
+    label: 'Ճանապարհային',
     icon: 'fa-road',
+    children: [
+      {
+        label: 'Կանոններ',
+        href: '/admin/rules',
+        icon: 'fa-book',
+      },
+      {
+        label: 'Նշաններ',
+        href: '/admin/road-signs',
+        icon: 'fa-circle-info',
+      },
+      {
+        label: 'Գծանշումներ',
+        href: '/admin/road-markings',
+        icon: 'fa-road',
+      },
+      {
+        label: 'Ճանաչման Նշաններ',
+        href: '/admin/vehicle-identification-signs',
+        icon: 'fa-id-card',
+      },
+      {
+        label: 'Տեխնիկական Անսարքություններ',
+        href: '/admin/vehicle-technical-defects',
+        icon: 'fa-exclamation-triangle',
+      },
+      {
+        label: 'Օրենք',
+        href: '/admin/traffic-law',
+        icon: 'fa-gavel',
+      },
+    ],
   },
   {
     label: 'Մեկնաբանություններ',
@@ -102,7 +134,7 @@ function MenuItemWithTooltip({
   isMobile: boolean;
   onToggle: () => void;
 }) {
-  const linkContent = (
+  const linkContent = item.href ? (
     <Link
       href={item.href}
       onClick={() => {
@@ -137,6 +169,24 @@ function MenuItemWithTooltip({
         </span>
       )}
     </Link>
+  ) : (
+    <div
+      className={`flex items-center gap-3 px-4 py-3 rounded-[10px] transition-colors relative ${
+        isActive
+          ? 'bg-[#FA8604] text-white font-medium'
+          : 'text-[#1A2229] hover:bg-gray-50'
+      } ${isCollapsed ? 'justify-center px-2' : ''}`}
+    >
+      {item.icon && (
+        <i
+          className={`fas ${item.icon} ${isCollapsed ? 'text-xl' : 'text-lg'}`}
+        ></i>
+      )}
+      {!isCollapsed && <span>{item.label}</span>}
+      {isCollapsed && !item.icon && (
+        <span className="text-xl font-bold">{item.label.charAt(0)}</span>
+      )}
+    </div>
   );
 
   if (isCollapsed) {
@@ -242,6 +292,103 @@ function UserProfileSection({ isCollapsed }: { isCollapsed: boolean }) {
   );
 }
 
+function MenuItemWithSubmenu({
+  item,
+  isCollapsed,
+  isMobile,
+  onToggle,
+  reportedCount = 0,
+}: {
+  item: MenuItem;
+  isCollapsed: boolean;
+  isMobile: boolean;
+  onToggle: () => void;
+  reportedCount?: number;
+}) {
+  const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Check if any child is active
+  const hasActiveChild =
+    item.children?.some((child) => child.href === pathname) || false;
+
+  // Auto-open if child is active
+  useEffect(() => {
+    if (hasActiveChild) {
+      setIsOpen(true);
+    }
+  }, [hasActiveChild]);
+
+  const toggleSubmenu = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const parentContent = (
+    <div
+      onClick={toggleSubmenu}
+      className={`flex items-center justify-between gap-3 px-4 py-3 rounded-[10px] transition-colors cursor-pointer ${
+        hasActiveChild
+          ? 'bg-[#FA8604] text-white font-medium'
+          : 'text-[#1A2229] hover:bg-gray-50'
+      } ${isCollapsed ? 'justify-center px-2' : ''}`}
+    >
+      <div className="flex items-center gap-3 flex-1">
+        {item.icon && (
+          <i
+            className={`fas ${item.icon} ${isCollapsed ? 'text-xl' : 'text-lg'}`}
+          ></i>
+        )}
+        {!isCollapsed && <span>{item.label}</span>}
+        {isCollapsed && !item.icon && (
+          <span className="text-xl font-bold">{item.label.charAt(0)}</span>
+        )}
+      </div>
+      {!isCollapsed && (
+        <i
+          className={`fas fa-chevron-down text-sm transition-transform duration-200 ${
+            isOpen ? 'rotate-180' : ''
+          }`}
+        ></i>
+      )}
+    </div>
+  );
+
+  if (isCollapsed) {
+    return (
+      <Tooltip content={item.label} placement="right" showArrow>
+        <div className="relative">{parentContent}</div>
+      </Tooltip>
+    );
+  }
+
+  return (
+    <div className="relative">
+      {parentContent}
+      {isOpen && !isCollapsed && item.children && (
+        <div className="ml-4 mt-1 space-y-1 border-l-2 border-gray-200 pl-4">
+          {item.children.map((child) => {
+            const isChildActive = pathname === child.href;
+            const childWithBadge =
+              child.href === '/admin/reported-comments'
+                ? { ...child, badgeCount: reportedCount }
+                : child;
+            return (
+              <MenuItemWithTooltip
+                key={child.href}
+                item={childWithBadge}
+                isActive={isChildActive}
+                isCollapsed={false}
+                isMobile={isMobile}
+                onToggle={onToggle}
+              />
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AdminSidebar({
   isCollapsed,
   onToggle,
@@ -340,6 +487,21 @@ export default function AdminSidebar({
 
         <nav className="space-y-2 flex-1">
           {menuItems.map((item) => {
+            // Check if item has children (submenu)
+            if (item.children && item.children.length > 0) {
+              return (
+                <MenuItemWithSubmenu
+                  key={item.label}
+                  item={item}
+                  isCollapsed={isCollapsed}
+                  isMobile={isMobile}
+                  onToggle={onToggle}
+                  reportedCount={reportedCount}
+                />
+              );
+            }
+
+            // Regular menu item
             const isActive = pathname === item.href;
             // Add badge count for reported comments menu item
             const menuItemWithBadge =
@@ -348,7 +510,7 @@ export default function AdminSidebar({
                 : item;
             return (
               <MenuItemWithTooltip
-                key={item.href}
+                key={item.href || item.label}
                 item={menuItemWithBadge}
                 isActive={isActive}
                 isCollapsed={isCollapsed}

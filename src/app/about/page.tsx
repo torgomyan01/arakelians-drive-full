@@ -118,7 +118,7 @@ function AboutPage() {
           </section>
 
           {/* Graduates Gallery Section */}
-          <section className="mt-16 mb-16 max-md:mt-10 max-md:mb-10">
+          {/* <section className="mt-16 mb-16 max-md:mt-10 max-md:mb-10">
             <h2 className="global-title mb-8 max-md:mb-6">
               Մեր շրջանավարտները
             </h2>
@@ -144,7 +144,7 @@ function AboutPage() {
                 </div>
               ))}
             </div>
-          </section>
+          </section> */}
         </div>
       </main>
       <Footer />

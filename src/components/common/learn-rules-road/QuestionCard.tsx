@@ -1,6 +1,8 @@
 'use client';
 
+import { useEffect } from 'react';
 import { getImageUrl } from '@/utils/image-utils';
+import Image from 'next/image';
 
 interface QuestionOption {
   id: number;
@@ -22,6 +24,7 @@ interface QuestionCardProps {
   selectedAnswer: number | undefined;
   onAnswerSelect: (questionId: number, optionIndex: number) => void;
   showResults?: boolean; // If false, don't show correct/wrong indicators
+  allQuestions?: Question[]; // All questions for preloading upcoming images
 }
 
 export default function QuestionCard({
@@ -29,19 +32,86 @@ export default function QuestionCard({
   selectedAnswer,
   onAnswerSelect,
   showResults = true,
+  allQuestions = [],
 }: QuestionCardProps) {
   const handleAnswerSelect = (optionIndex: number) => {
     onAnswerSelect(question.id, optionIndex);
   };
 
+  // Find current question index
+  const currentIndex =
+    allQuestions.length > 0
+      ? allQuestions.findIndex((q) => q.id === question.id)
+      : -1;
+
+  // Get next questions to preload (next 5 questions for better coverage)
+  const nextQuestions =
+    currentIndex >= 0 && allQuestions.length > 0
+      ? allQuestions.slice(currentIndex + 1, currentIndex + 6)
+      : [];
+
+  // Preload images using link tags in head for maximum speed
+  useEffect(() => {
+    const links: HTMLLinkElement[] = [];
+
+    nextQuestions.forEach((nextQuestion) => {
+      if (!nextQuestion.img) return;
+      const imageUrl = getImageUrl(nextQuestion.img);
+      if (!imageUrl) return;
+
+      // Create and append preload link
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'image';
+      link.href = imageUrl;
+      link.setAttribute('fetchpriority', 'high');
+      document.head.appendChild(link);
+      links.push(link);
+    });
+
+    // Cleanup function
+    return () => {
+      links.forEach((link) => {
+        if (document.head.contains(link)) {
+          document.head.removeChild(link);
+        }
+      });
+    };
+  }, [nextQuestions]);
+
   return (
     <>
+      {/* Preload next questions' images using Next.js Image for optimization */}
+      <div className="absolute -left-[9999px] -top-[9999px] opacity-0 pointer-events-none w-0 h-0 overflow-hidden">
+        {nextQuestions.map((nextQuestion) => {
+          if (!nextQuestion.img) return null;
+          return (
+            <Image
+              key={`preload-${nextQuestion.id}`}
+              src={getImageUrl(nextQuestion.img)}
+              alt=""
+              width={644}
+              height={300}
+              priority
+              fetchPriority="high"
+              unoptimized={false}
+            />
+          );
+        })}
+      </div>
+
+      {/* Current question image */}
       {question.img && (
         <div className="flex-jc-c">
-          <img
+          <Image
             src={getImageUrl(question.img)}
-            alt=""
+            alt={question.title}
+            width={644}
+            height={300}
+            priority
+            fetchPriority="high"
             className="rounded-[20px] mb-6"
+            unoptimized={false}
           />
         </div>
       )}

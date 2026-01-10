@@ -112,6 +112,67 @@
   content: '\f06a';
 }
 
+/* Test Content Icons */
+.fa-check:before {
+  content: '\f00c';
+}
+
+.fa-times:before {
+  content: '\f00d';
+}
+
+.fa-check-circle:before {
+  content: '\f058';
+}
+
+.fa-times-circle:before {
+  content: '\f057';
+}
+
+.fa-clipboard-question:before {
+  content: '\f46e';
+}
+
+.fa-arrow-right:before {
+  content: '\f061';
+}
+
+.fa-list-check:before {
+  content: '\f0ae';
+}
+
+.fa-clock:before {
+  content: '\f017';
+}
+
+.fa-play-circle:before {
+  content: '\f144';
+}
+
+.fa-book:before {
+  content: '\f02d';
+}
+
+.fa-circle-info:before {
+  content: '\f05a';
+}
+
+.fa-file-alt:before {
+  content: '\f15c';
+}
+
+.fa-id-card:before {
+  content: '\f2c2';
+}
+
+.fa-exclamation-triangle:before {
+  content: '\f071';
+}
+
+.fa-gavel:before {
+  content: '\f0e3';
+}
+
 /*---------------------------------*/
 
 @font-face {

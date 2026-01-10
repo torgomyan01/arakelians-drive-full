@@ -1,35 +1,36 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import {
-  getAllTrafficLawItems,
-  categoryLabels,
-  TrafficLawItem,
-} from '@/utils/trafficLaw';
+import { categoryLabels } from '@/utils/trafficLaw';
+import { TrafficLawItem } from '@/app/actions/traffic-law';
 import { SITE_URL } from '@/utils/consts';
 
-export default function TrafficLawContent() {
+interface TrafficLawContentProps {
+  initialItems: TrafficLawItem[];
+}
+
+export default function TrafficLawContent({
+  initialItems,
+}: TrafficLawContentProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | 'all'>(
     'all'
   );
   const [searchTerm, setSearchTerm] = useState('');
 
-  const allItems = getAllTrafficLawItems();
-
   // Get unique categories
   const uniqueCategories = useMemo(() => {
     const cats = new Set<string>();
-    allItems.forEach((item) => {
+    initialItems.forEach((item) => {
       cats.add(item.category);
     });
     return Array.from(cats).sort();
-  }, [allItems]);
+  }, [initialItems]);
 
   const categories: (string | 'all')[] = ['all', ...uniqueCategories];
 
   const filteredItems = useMemo(() => {
     // Start with a fresh copy of all items
-    let items: TrafficLawItem[] = [...allItems];
+    let items: TrafficLawItem[] = [...initialItems];
 
     // Filter by category first
     if (selectedCategory !== 'all') {
@@ -50,7 +51,7 @@ export default function TrafficLawContent() {
 
     // Return a new array reference to ensure React detects the change
     return [...items];
-  }, [selectedCategory, searchTerm, allItems]);
+  }, [initialItems, selectedCategory, searchTerm]);
 
   const getCategoryColor = (category: string) => {
     if (category === 'concepts') {
@@ -184,7 +185,7 @@ export default function TrafficLawContent() {
             <>
               Ընդամենը{' '}
               <span className="font-semibold text-[#222]">
-                {allItems.length}
+                {initialItems.length}
               </span>{' '}
               հոդված
             </>
@@ -272,4 +273,3 @@ export default function TrafficLawContent() {
     </div>
   );
 }
-

@@ -1,21 +1,23 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import {
-  getAllVehicleSigns,
-  VehicleIdentificationSign,
-} from '@/utils/vehicleIdentificationSigns';
+import { VehicleIdentificationSign } from '@/app/actions/vehicle-identification-signs';
 import { SITE_URL } from '@/utils/consts';
 import Image from 'next/image';
+import { getImageUrl } from '@/utils/image-utils';
 
-export default function VehicleIdentificationSignsContent() {
+interface VehicleIdentificationSignsContentProps {
+  initialSigns: VehicleIdentificationSign[];
+}
+
+export default function VehicleIdentificationSignsContent({
+  initialSigns,
+}: VehicleIdentificationSignsContentProps) {
   const [searchTerm, setSearchTerm] = useState('');
-
-  const vehicleSigns = getAllVehicleSigns();
 
   const filteredSigns = useMemo(() => {
     // Start with a fresh copy of all signs
-    let signs: VehicleIdentificationSign[] = [...vehicleSigns];
+    let signs: VehicleIdentificationSign[] = [...initialSigns];
 
     // Apply search filter if search term exists
     const trimmedSearch = searchTerm.trim();
@@ -36,7 +38,7 @@ export default function VehicleIdentificationSignsContent() {
 
     // Return a new array reference to ensure React detects the change
     return [...signs];
-  }, [searchTerm, vehicleSigns]);
+  }, [initialSigns, searchTerm]);
 
   return (
     <div className="container-full pt-[100px] max-w-[1350px] w-full max-[767px]:pt-[90px]">
@@ -129,7 +131,7 @@ export default function VehicleIdentificationSignsContent() {
             <>
               Ընդամենը{' '}
               <span className="font-semibold text-[#222]">
-                {vehicleSigns.length}
+                {initialSigns.length}
               </span>{' '}
               նշան
             </>
@@ -187,7 +189,11 @@ export default function VehicleIdentificationSignsContent() {
                   <div className="w-full h-48 bg-gray-100 rounded-xl flex items-center justify-center mb-4 overflow-hidden relative">
                     {sign.image ? (
                       <Image
-                        src={sign.image}
+                        src={
+                          sign.image.startsWith('/')
+                            ? sign.image
+                            : getImageUrl(sign.image)
+                        }
                         alt={sign.name}
                         width={200}
                         height={200}

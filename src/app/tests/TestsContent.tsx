@@ -78,88 +78,225 @@ export default function TestsContent() {
             Թեստեր չեն գտնվել
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-[100px] max-[767px]:mb-8">
-            {tests.map((test) => {
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-[100px] max-[767px]:mb-8 max-[767px]:gap-6">
+            {tests.map((test, index) => {
               const isCompleted = test.result?.isCompleted ?? false;
               const isPerfect = test.result?.isPerfect ?? false;
-              const borderColor = isCompleted
-                ? isPerfect
-                  ? 'border-green-500 border-2'
-                  : 'border-red-500 border-2'
-                : 'border-transparent';
+              const percentage = test.result
+                ? Math.round((test.result.correct / test.result.total) * 100)
+                : 0;
 
               return (
                 <Link
                   key={test.id}
                   href={`${SITE_URL.TESTS}/${test.id}`}
-                  className={`${glassEffect} ${borderColor} p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group relative`}
+                  className="group relative animate-fade-in"
+                  style={{
+                    animationDelay: `${index * 100}ms`,
+                    opacity: 0,
+                  }}
                 >
-                  {/* Status indicator */}
-                  {isCompleted && (
+                  <div
+                    className={`relative h-full rounded-3xl p-6 bg-white/90 backdrop-blur-xl border-2 transition-all duration-500 ease-out cursor-pointer overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-2 ${
+                      isCompleted
+                        ? isPerfect
+                          ? 'border-green-400/60 hover:border-green-500'
+                          : 'border-red-400/60 hover:border-red-500'
+                        : 'border-[#FA8604]/30 hover:border-[#FA8604]/60'
+                    }`}
+                  >
+                    {/* Animated background gradient */}
                     <div
-                      className={`absolute top-4 right-4 w-4 h-4 rounded-full ${
-                        isPerfect ? 'bg-green-500' : 'bg-red-500'
-                      }`}
-                      title={
-                        isPerfect
-                          ? 'Բոլոր հարցերը ճիշտ են'
-                          : 'Կան սխալ պատասխաններ'
-                      }
-                    />
-                  )}
-
-                  <div className="flex items-center justify-between mb-4">
-                    <h3
-                      className={`text-2xl font-bold group-hover:text-[#FA8604] transition-colors ${
+                      className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
                         isCompleted
                           ? isPerfect
-                            ? 'text-green-600'
-                            : 'text-red-600'
-                          : 'text-[#222]'
+                            ? 'bg-gradient-to-br from-green-50/50 via-transparent to-transparent'
+                            : 'bg-gradient-to-br from-red-50/50 via-transparent to-transparent'
+                          : 'bg-gradient-to-br from-[#FA8604]/5 via-transparent to-transparent'
                       }`}
-                    >
-                      Թեստ #{test.id}
-                    </h3>
-                    <i className="fa-solid fa-arrow-right text-[#FA8604] group-hover:translate-x-1 transition-transform"></i>
-                  </div>
+                    />
 
-                  <p className="text-[#8D8D8D] text-base">
-                    {test.questionCount} հարց
-                  </p>
-                  <p className="text-[#8D8D8D] text-sm mt-2">
-                    ժամանակահատված: 30 րոպե
-                  </p>
+                    {/* Shimmer effect */}
+                    <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
-                  {/* Results block */}
-                  {isCompleted && test.result && (
-                    <div
-                      className={`mt-4 p-4 rounded-[15px] ${
-                        isPerfect
-                          ? 'bg-green-50 border border-green-200'
-                          : 'bg-red-50 border border-red-200'
-                      }`}
-                    >
-                      <div
-                        className={`text-lg font-bold mb-1 ${
-                          isPerfect ? 'text-green-700' : 'text-red-700'
-                        }`}
-                      >
-                        {test.result.correct} / {test.result.total} ճիշտ
+                    {/* Main content */}
+                    <div className="relative z-10">
+                      {/* Header */}
+                      <div className="flex items-start justify-between mb-6">
+                        <div className="flex items-center gap-4">
+                          <div
+                            className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-md group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 ${
+                              isCompleted
+                                ? isPerfect
+                                  ? 'bg-gradient-to-br from-green-400 to-green-600'
+                                  : 'bg-gradient-to-br from-red-400 to-red-600'
+                                : 'bg-gradient-to-br from-[#FA8604] to-[#FF9A3C]'
+                            }`}
+                          >
+                            <i
+                              className={`fa-solid text-2xl text-white ${
+                                isCompleted
+                                  ? isPerfect
+                                    ? 'fa-check-circle'
+                                    : 'fa-times-circle'
+                                  : 'fa-clipboard-question'
+                              }`}
+                            />
+                          </div>
+                          <div>
+                            <h3
+                              className={`text-2xl font-bold mb-1 group-hover:scale-105 transition-transform duration-300 ${
+                                isCompleted
+                                  ? isPerfect
+                                    ? 'text-green-600'
+                                    : 'text-red-600'
+                                  : 'text-[#222]'
+                              }`}
+                            >
+                              Թեստ {test.id}
+                            </h3>
+                            <p className="text-xs text-[#8D8D8D] font-medium">
+                              {isCompleted ? 'Ավարտված' : 'Նոր թեստ'}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="w-10 h-10 rounded-xl bg-[#FA8604]/10 group-hover:bg-[#FA8604] flex items-center justify-center transition-all duration-300 group-hover:scale-110">
+                          <i className="fa-solid fa-arrow-right text-[#FA8604] group-hover:text-white transition-all duration-300 group-hover:translate-x-1" />
+                        </div>
                       </div>
-                      <div
-                        className={`text-sm ${
-                          isPerfect ? 'text-green-600' : 'text-red-600'
-                        }`}
-                      >
-                        {isPerfect
-                          ? '✓ Բոլոր հարցերը ճիշտ են'
-                          : `✗ ${test.result.total - test.result.correct} սխալ պատասխան`}
+
+                      {/* Info section */}
+                      <div className="space-y-3 mb-6">
+                        <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50/50 group-hover:bg-gray-50 transition-colors duration-300">
+                          <div className="w-8 h-8 rounded-lg bg-[#FA8604]/10 flex items-center justify-center">
+                            <i className="fa-solid fa-list-check text-[#FA8604] text-sm" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-[#8D8D8D]">
+                              Հարցերի քանակ
+                            </p>
+                            <p className="text-base font-bold text-[#222]">
+                              {test.questionCount} հարց
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50/50 group-hover:bg-gray-50 transition-colors duration-300">
+                          <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                            <i className="fa-solid fa-clock text-blue-600 text-sm" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-[#8D8D8D]">
+                              ժամանակահատված
+                            </p>
+                            <p className="text-base font-bold text-[#222]">
+                              30 րոպե
+                            </p>
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-xs text-[#8D8D8D] mt-2">
-                        Թեստը ավարտված է
-                      </div>
+
+                      {/* Results section */}
+                      {isCompleted && test.result ? (
+                        <div
+                          className={`mt-6 p-5 rounded-2xl border-2 backdrop-blur-sm ${
+                            isPerfect
+                              ? 'bg-gradient-to-br from-green-50 to-green-100/50 border-green-300/50 shadow-lg shadow-green-500/10'
+                              : 'bg-gradient-to-br from-red-50 to-red-100/50 border-red-300/50 shadow-lg shadow-red-500/10'
+                          }`}
+                        >
+                          {/* Progress bar */}
+                          <div className="mb-4">
+                            <div className="flex items-center justify-between mb-2">
+                              <span
+                                className={`text-sm font-semibold ${
+                                  isPerfect ? 'text-green-700' : 'text-red-700'
+                                }`}
+                              >
+                                Արդյունք
+                              </span>
+                              <span
+                                className={`text-lg font-bold ${
+                                  isPerfect ? 'text-green-700' : 'text-red-700'
+                                }`}
+                              >
+                                {percentage}%
+                              </span>
+                            </div>
+                            <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+                              <div
+                                className={`h-full rounded-full transition-all duration-1000 ease-out ${
+                                  isPerfect
+                                    ? 'bg-gradient-to-r from-green-400 to-green-600'
+                                    : 'bg-gradient-to-r from-red-400 to-red-600'
+                                }`}
+                                style={{ width: `${percentage}%` }}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Stats */}
+                          <div className="grid grid-cols-2 gap-3 mb-3">
+                            <div className="p-3 rounded-xl bg-white/60">
+                              <p className="text-xs text-[#8D8D8D] mb-1">
+                                Ճիշտ
+                              </p>
+                              <p
+                                className={`text-xl font-bold ${
+                                  isPerfect ? 'text-green-600' : 'text-red-600'
+                                }`}
+                              >
+                                {test.result.correct}
+                              </p>
+                            </div>
+                            <div className="p-3 rounded-xl bg-white/60">
+                              <p className="text-xs text-[#8D8D8D] mb-1">
+                                Ընդամենը
+                              </p>
+                              <p className="text-xl font-bold text-[#222]">
+                                {test.result.total}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Status message */}
+                          <div
+                            className={`flex items-center gap-2 p-3 rounded-xl ${
+                              isPerfect
+                                ? 'bg-green-100/50 text-green-700'
+                                : 'bg-red-100/50 text-red-700'
+                            }`}
+                          >
+                            <i
+                              className={`fa-solid ${
+                                isPerfect
+                                  ? 'fa-check-circle'
+                                  : 'fa-exclamation-circle'
+                              }`}
+                            />
+                            <span className="text-sm font-medium">
+                              {isPerfect
+                                ? 'Բոլոր հարցերը ճիշտ են'
+                                : `${test.result.total - test.result.correct} սխալ պատասխան`}
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="mt-6 p-4 rounded-2xl bg-gradient-to-r from-[#FA8604]/5 to-[#FA8604]/10 border border-[#FA8604]/20">
+                          <div className="flex items-center gap-3">
+                            <i className="fa-solid fa-play-circle text-[#FA8604] text-xl" />
+                            <div>
+                              <p className="text-sm font-semibold text-[#222]">
+                                Սկսել թեստը
+                              </p>
+                              <p className="text-xs text-[#8D8D8D]">
+                                Կտտացրեք սկսելու համար
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </Link>
               );
             })}

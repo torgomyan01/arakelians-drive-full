@@ -1,17 +1,29 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { categoryLabels, RoadSign, roadSigns } from '@/utils/roadSigns';
+import { RoadSign } from '@/app/actions/road-signs';
+import {
+  categoryLabels,
+  type RoadSignCategory,
+} from '@/utils/road-signs-utils';
 import { SITE_URL } from '@/utils/consts';
 import Image from 'next/image';
+import { getImageUrl } from '@/utils/image-utils';
 
-export default function RoadSignsContent() {
+interface RoadSignsContentProps {
+  initialSigns: RoadSign[];
+}
+
+export default function RoadSignsContent({
+  initialSigns,
+}: RoadSignsContentProps) {
   const [selectedCategory, setSelectedCategory] = useState<
-    RoadSign['category'] | 'all'
+    RoadSignCategory | 'all'
   >('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [signs] = useState<RoadSign[]>(initialSigns);
 
-  const categories: (RoadSign['category'] | 'all')[] = [
+  const categories: (RoadSignCategory | 'all')[] = [
     'all',
     'warning',
     'priority',
@@ -25,18 +37,18 @@ export default function RoadSignsContent() {
 
   const filteredSigns = useMemo(() => {
     // Start with a fresh copy of all signs
-    let signs: RoadSign[] = [...roadSigns];
+    let filtered: RoadSign[] = [...signs];
 
     // Filter by category first
     if (selectedCategory !== 'all') {
-      signs = signs.filter((sign) => sign.category === selectedCategory);
+      filtered = filtered.filter((sign) => sign.category === selectedCategory);
     }
 
     // Then apply search filter if search term exists
     const trimmedSearch = searchTerm.trim();
     if (trimmedSearch) {
       const term = trimmedSearch.toLowerCase();
-      signs = signs.filter((sign) => {
+      filtered = filtered.filter((sign) => {
         const name = sign.name?.toLowerCase() || '';
         const description = sign.description?.toLowerCase() || '';
         const number = sign.number?.toLowerCase() || '';
@@ -50,10 +62,10 @@ export default function RoadSignsContent() {
     }
 
     // Return a new array reference to ensure React detects the change
-    return [...signs];
-  }, [selectedCategory, searchTerm]);
+    return [...filtered];
+  }, [signs, selectedCategory, searchTerm]);
 
-  const getCategoryColor = (category: RoadSign['category']) => {
+  const getCategoryColor = (category: RoadSignCategory) => {
     switch (category) {
       case 'warning':
         return 'bg-yellow-100 text-yellow-800 border-yellow-300';
@@ -174,7 +186,7 @@ export default function RoadSignsContent() {
               >
                 {category === 'all'
                   ? 'Բոլորը'
-                  : categoryLabels[category as RoadSign['category']]}
+                  : categoryLabels[category as RoadSignCategory]}
               </button>
             ))}
           </div>
@@ -198,9 +210,7 @@ export default function RoadSignsContent() {
           ) : (
             <>
               Ընդամենը{' '}
-              <span className="font-semibold text-[#222]">
-                {roadSigns.length}
-              </span>{' '}
+              <span className="font-semibold text-[#222]">{signs.length}</span>{' '}
               նշան
             </>
           )}
@@ -275,7 +285,7 @@ export default function RoadSignsContent() {
                   <div className="w-full h-48 bg-gray-100 rounded-xl flex items-center justify-center mb-4 overflow-hidden relative">
                     {sign.image ? (
                       <Image
-                        src={sign.image}
+                        src={getImageUrl(sign.image)}
                         alt={sign.name}
                         width={200}
                         height={200}
@@ -346,10 +356,10 @@ export default function RoadSignsContent() {
           <h3 className="text-2xl font-bold mb-4">Կարևոր տեղեկություն</h3>
           <p className="text-lg leading-relaxed opacity-95">
             Ճանապարհային նշանները բաժանվում են 8 խմբի: Յուրաքանչյուր նշան ունի
-            իր համարը և նշանակությունը: Նշանները տեղադրվում են ճանապարհի եզրին
-            և կարևոր են երթևեկության անվտանգության ապահովման համար: Բոլոր
-            նշանները պետք է ճանաչել և պահպանել վարորդական իրավունքի քննության
-            հաջող հանձնման համար:
+            իր համարը և նշանակությունը: Նշանները տեղադրվում են ճանապարհի եզրին և
+            կարևոր են երթևեկության անվտանգության ապահովման համար: Բոլոր նշանները
+            պետք է ճանաչել և պահպանել վարորդական իրավունքի քննության հաջող
+            հանձնման համար:
           </p>
         </div>
 
@@ -379,4 +389,3 @@ export default function RoadSignsContent() {
     </div>
   );
 }
-

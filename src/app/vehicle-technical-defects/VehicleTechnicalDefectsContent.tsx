@@ -2,19 +2,25 @@
 
 import { useState, useMemo } from 'react';
 import {
-  getAllTechnicalDefects,
   categoryLabels,
-  VehicleTechnicalDefect,
-} from '@/utils/vehicleTechnicalDefects';
+  type VehicleTechnicalDefectCategory,
+} from '@/utils/vehicle-technical-defects-utils';
+import { VehicleTechnicalDefect } from '@/app/actions/vehicle-technical-defects';
 import { SITE_URL } from '@/utils/consts';
 
-export default function VehicleTechnicalDefectsContent() {
+interface VehicleTechnicalDefectsContentProps {
+  initialDefects: VehicleTechnicalDefect[];
+}
+
+export default function VehicleTechnicalDefectsContent({
+  initialDefects,
+}: VehicleTechnicalDefectsContentProps) {
   const [selectedCategory, setSelectedCategory] = useState<
-    VehicleTechnicalDefect['category'] | 'all'
+    VehicleTechnicalDefectCategory | 'all'
   >('all');
   const [searchTerm, setSearchTerm] = useState('');
 
-  const categories: (VehicleTechnicalDefect['category'] | 'all')[] = [
+  const categories: (VehicleTechnicalDefectCategory | 'all')[] = [
     'all',
     'braking',
     'steering',
@@ -24,11 +30,9 @@ export default function VehicleTechnicalDefectsContent() {
     'other',
   ];
 
-  const allDefects = getAllTechnicalDefects();
-
   const filteredDefects = useMemo(() => {
     // Start with a fresh copy of all defects
-    let defects: VehicleTechnicalDefect[] = [...allDefects];
+    let defects: VehicleTechnicalDefect[] = [...initialDefects];
 
     // Filter by category first
     if (selectedCategory !== 'all') {
@@ -51,9 +55,9 @@ export default function VehicleTechnicalDefectsContent() {
 
     // Return a new array reference to ensure React detects the change
     return [...defects];
-  }, [selectedCategory, searchTerm, allDefects]);
+  }, [initialDefects, selectedCategory, searchTerm]);
 
-  const getCategoryColor = (category: VehicleTechnicalDefect['category']) => {
+  const getCategoryColor = (category: VehicleTechnicalDefectCategory) => {
     switch (category) {
       case 'braking':
         return 'bg-red-100 text-red-800 border-red-300';
@@ -170,9 +174,7 @@ export default function VehicleTechnicalDefectsContent() {
               >
                 {category === 'all'
                   ? 'Բոլորը'
-                  : categoryLabels[
-                      category as VehicleTechnicalDefect['category']
-                    ]}
+                  : categoryLabels[category as VehicleTechnicalDefectCategory]}
               </button>
             ))}
           </div>
@@ -192,7 +194,7 @@ export default function VehicleTechnicalDefectsContent() {
                   (
                   {
                     categoryLabels[
-                      selectedCategory as VehicleTechnicalDefect['category']
+                      selectedCategory as VehicleTechnicalDefectCategory
                     ]
                   }
                   )
@@ -203,7 +205,7 @@ export default function VehicleTechnicalDefectsContent() {
             <>
               Ընդամենը{' '}
               <span className="font-semibold text-[#222]">
-                {allDefects.length}
+                {initialDefects.length}
               </span>{' '}
               անսարքություն
             </>

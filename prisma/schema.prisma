@@ -189,3 +189,77 @@ model PsychologicalQuestionOption {
   @@unique([questionId, order])
   @@map("psychological_question_options")
 }
+
+model RoadSign {
+  id          Int      @id @default(autoincrement())
+  number      String   @db.VarChar(50)
+  name        String   @db.VarChar(500)
+  description String   @db.Text
+  category    String   @db.VarChar(50)
+  image       String?  @db.VarChar(500)
+  placement   String?  @db.Text
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@index([number])
+  @@map("road_signs")
+}
+
+model RoadMarking {
+  id          Int      @id @default(autoincrement())
+  number      String   @db.VarChar(50)
+  name        String   @db.VarChar(500)
+  description String   @db.Text
+  category    String   @db.VarChar(50)
+  image       String?  @db.VarChar(500)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@index([number])
+  @@map("road_markings")
+}
+
+model VehicleIdentificationSign {
+  id          Int      @id @default(autoincrement())
+  number      String   @db.VarChar(50)
+  name        String   @db.VarChar(500)
+  description String   @db.Text
+  image       String?  @db.VarChar(500)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([number])
+  @@map("vehicle_identification_signs")
+}
+
+model VehicleTechnicalDefect {
+  id          Int      @id @default(autoincrement())
+  number      String   @db.VarChar(50)
+  description String   @db.Text
+  category    String   @db.VarChar(50)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@index([number])
+  @@map("vehicle_technical_defects")
+}
+
+model TrafficLawItem {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(500)
+  description String   @db.Text
+  category    String   @db.VarChar(100)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@map("traffic_law_items")
+}

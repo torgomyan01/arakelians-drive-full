@@ -479,7 +479,7 @@ export default function TestContent({ testId }: TestContentProps) {
                             >
                               Հաջորդ
                               <img
-                                src="images/arr-w-right.svg"
+                                src="/images/arr-w-right.svg"
                                 alt=""
                                 className="ml-2.5"
                               />
@@ -586,7 +586,7 @@ export default function TestContent({ testId }: TestContentProps) {
                       >
                         Հաջորդ
                         <img
-                          src="images/arr-w-right.svg"
+                          src="/images/arr-w-right.svg"
                           alt=""
                           className="ml-2.5"
                         />

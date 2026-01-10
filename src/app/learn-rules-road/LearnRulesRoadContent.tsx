@@ -16,6 +16,8 @@ import {
 import { Tooltip } from '@heroui/tooltip';
 import { SITE_URL } from '@/utils/consts';
 import CommentForm from '@/components/common/learn-rules-road/CommentForm';
+import Image from 'next/image';
+import { getImageUrl } from '@/utils/image-utils';
 
 interface LessonCategory {
   id: number;
@@ -139,6 +141,37 @@ export default function LearnRulesRoadContent() {
     fetchQuestions();
   }, [selectedCategoryId]);
 
+  // Preload all question images using link tags for maximum speed
+  useEffect(() => {
+    if (questions.length === 0) return;
+
+    const links: HTMLLinkElement[] = [];
+
+    questions.forEach((question) => {
+      if (!question.img) return;
+      const imageUrl = getImageUrl(question.img);
+      if (!imageUrl) return;
+
+      // Create and append preload link
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'image';
+      link.href = imageUrl;
+      link.setAttribute('fetchpriority', 'high');
+      document.head.appendChild(link);
+      links.push(link);
+    });
+
+    // Cleanup function
+    return () => {
+      links.forEach((link) => {
+        if (document.head.contains(link)) {
+          document.head.removeChild(link);
+        }
+      });
+    };
+  }, [questions]);
+
   const sidebarItems = lessonCategories.map((category) => category.id);
   const selectedQuestion = questions.find((q) => q.id === selectedQuestionId);
 
@@ -229,11 +262,30 @@ export default function LearnRulesRoadContent() {
                 </div>
               </div>
             ) : selectedQuestion ? (
-              <div className="flex max-[767px]:flex-col">
+              <div className="flex max-[767px]:flex-col relative">
+                {/* Preload all question images using Next.js Image for optimization */}
+                <div className="absolute -left-[9999px] -top-[9999px] opacity-0 pointer-events-none w-0 h-0 overflow-hidden">
+                  {questions.map((q) => {
+                    if (!q.img || q.id === selectedQuestion.id) return null;
+                    return (
+                      <Image
+                        key={`preload-all-${q.id}`}
+                        src={getImageUrl(q.img)}
+                        alt=""
+                        width={644}
+                        height={300}
+                        priority
+                        fetchPriority="high"
+                        unoptimized={false}
+                      />
+                    );
+                  })}
+                </div>
                 <div className="grow ">
                   <QuestionCard
                     question={selectedQuestion}
                     selectedAnswer={selectedAnswers[selectedQuestion.id]}
+                    allQuestions={questions}
                     onAnswerSelect={(questionId, optionIndex) => {
                       setSelectedAnswers((prev) => ({
                         ...prev,
@@ -308,7 +360,7 @@ export default function LearnRulesRoadContent() {
                     >
                       Հաջորդ
                       <img
-                        src="images/arr-w-right.svg"
+                        src="/images/arr-w-right.svg"
                         alt=""
                         className="ml-2.5"
                       />

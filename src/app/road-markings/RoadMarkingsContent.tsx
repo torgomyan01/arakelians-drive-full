@@ -3,19 +3,26 @@
 import { useState, useMemo } from 'react';
 import {
   categoryLabels,
-  RoadMarking,
-  roadMarkings,
-} from '@/utils/roadMarkings';
+  type RoadMarkingCategory,
+} from '@/utils/road-markings-utils';
+import { RoadMarking } from '@/app/actions/road-markings';
 import { SITE_URL } from '@/utils/consts';
 import Image from 'next/image';
+import { getImageUrl } from '@/utils/image-utils';
 
-export default function RoadMarkingsContent() {
+interface RoadMarkingsContentProps {
+  initialMarkings: RoadMarking[];
+}
+
+export default function RoadMarkingsContent({
+  initialMarkings,
+}: RoadMarkingsContentProps) {
   const [selectedCategory, setSelectedCategory] = useState<
-    RoadMarking['category'] | 'all'
+    RoadMarkingCategory | 'all'
   >('all');
   const [searchTerm, setSearchTerm] = useState('');
 
-  const categories: (RoadMarking['category'] | 'all')[] = [
+  const categories: (RoadMarkingCategory | 'all')[] = [
     'all',
     'horizontal',
     'vertical',
@@ -24,7 +31,7 @@ export default function RoadMarkingsContent() {
 
   const filteredMarkings = useMemo(() => {
     // Start with a fresh copy of all markings
-    let markings: RoadMarking[] = [...roadMarkings];
+    let markings: RoadMarking[] = [...initialMarkings];
 
     // Filter by category first
     if (selectedCategory !== 'all') {
@@ -52,9 +59,9 @@ export default function RoadMarkingsContent() {
 
     // Return a new array reference to ensure React detects the change
     return [...markings];
-  }, [selectedCategory, searchTerm]);
+  }, [initialMarkings, selectedCategory, searchTerm]);
 
-  const getCategoryColor = (category: RoadMarking['category']) => {
+  const getCategoryColor = (category: RoadMarkingCategory) => {
     switch (category) {
       case 'horizontal':
         return 'bg-blue-100 text-blue-800 border-blue-300';
@@ -180,8 +187,7 @@ export default function RoadMarkingsContent() {
               գծանշում
               {selectedCategory !== 'all' && (
                 <span className="ml-2">
-                  ({categoryLabels[selectedCategory as RoadMarking['category']]}
-                  )
+                  ({categoryLabels[selectedCategory as RoadMarkingCategory]})
                 </span>
               )}
             </>
@@ -189,7 +195,7 @@ export default function RoadMarkingsContent() {
             <>
               Ընդամենը{' '}
               <span className="font-semibold text-[#222]">
-                {roadMarkings.length}
+                {initialMarkings.length}
               </span>{' '}
               գծանշում
             </>
@@ -265,7 +271,11 @@ export default function RoadMarkingsContent() {
                   <div className="w-full h-48 bg-gray-100 rounded-xl flex items-center justify-center mb-4 overflow-hidden relative">
                     {marking.image ? (
                       <Image
-                        src={marking.image}
+                        src={
+                          marking.image.startsWith('/')
+                            ? marking.image
+                            : getImageUrl(marking.image)
+                        }
                         alt={marking.name}
                         width={200}
                         height={200}
