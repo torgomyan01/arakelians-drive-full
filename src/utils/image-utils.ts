@@ -1,4 +1,5 @@
 import { UPLOAD_CONFIG } from './upload-config';
+import { ImageLoaderProps } from 'next/image';
 
 /**
  * Get the full URL for an image
@@ -47,6 +48,26 @@ export function getImageUrl(filename: string | null | undefined): string {
 
   // New format: just filename, use the uploads API
   return UPLOAD_CONFIG.getImageUrl(justFilename);
+}
+
+/**
+ * Custom loader for Next.js Image component
+ * Returns the image URL as-is without optimization since images are served from API route
+ * This ensures images load correctly from the uploads folder
+ */
+export function imageLoader({ src, width, quality }: ImageLoaderProps): string {
+  // If src is already a full URL, return it as is
+  if (src.startsWith('http://') || src.startsWith('https://')) {
+    return src;
+  }
+
+  // If src is a relative path, convert to full URL
+  if (src.startsWith('/')) {
+    return `https://arakelians-drive.am${src}`;
+  }
+
+  // Otherwise, treat as filename and use uploads API
+  return UPLOAD_CONFIG.getImageUrl(src);
 }
 
 /**

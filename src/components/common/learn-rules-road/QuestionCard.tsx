@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { getImageUrl } from '@/utils/image-utils';
+import { getImageUrl, imageLoader } from '@/utils/image-utils';
 import Image from 'next/image';
 
 interface QuestionOption {
@@ -65,6 +65,7 @@ export default function QuestionCard({
       link.as = 'image';
       link.href = imageUrl;
       link.setAttribute('fetchpriority', 'high');
+      link.setAttribute('crossorigin', 'anonymous');
       document.head.appendChild(link);
       links.push(link);
     });
@@ -92,9 +93,10 @@ export default function QuestionCard({
               alt=""
               width={644}
               height={300}
+              loader={imageLoader}
               priority
               fetchPriority="high"
-              unoptimized={false}
+              unoptimized
             />
           );
         })}
@@ -108,10 +110,11 @@ export default function QuestionCard({
             alt={question.title}
             width={644}
             height={300}
+            loader={imageLoader}
             priority
             fetchPriority="high"
             className="rounded-[20px] mb-6"
-            unoptimized={false}
+            unoptimized
           />
         </div>
       )}

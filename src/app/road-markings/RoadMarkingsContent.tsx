@@ -8,7 +8,7 @@ import {
 import { RoadMarking } from '@/app/actions/road-markings';
 import { SITE_URL } from '@/utils/consts';
 import Image from 'next/image';
-import { getImageUrl } from '@/utils/image-utils';
+import { getImageUrl, imageLoader } from '@/utils/image-utils';
 
 interface RoadMarkingsContentProps {
   initialMarkings: RoadMarking[];
@@ -279,6 +279,8 @@ export default function RoadMarkingsContent({
                         alt={marking.name}
                         width={200}
                         height={200}
+                        loader={imageLoader}
+                        unoptimized
                         className="object-contain w-full h-full filter-[brightness(1.5)]"
                         onError={(e) => {
                           // Fallback if image doesn't exist

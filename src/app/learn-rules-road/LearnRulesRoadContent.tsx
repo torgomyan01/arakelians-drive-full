@@ -17,7 +17,7 @@ import { Tooltip } from '@heroui/tooltip';
 import { SITE_URL } from '@/utils/consts';
 import CommentForm from '@/components/common/learn-rules-road/CommentForm';
 import Image from 'next/image';
-import { getImageUrl } from '@/utils/image-utils';
+import { getImageUrl, imageLoader } from '@/utils/image-utils';
 
 interface LessonCategory {
   id: number;
@@ -274,9 +274,10 @@ export default function LearnRulesRoadContent() {
                         alt=""
                         width={644}
                         height={300}
+                        loader={imageLoader}
                         priority
                         fetchPriority="high"
-                        unoptimized={false}
+                        unoptimized
                       />
                     );
                   })}
