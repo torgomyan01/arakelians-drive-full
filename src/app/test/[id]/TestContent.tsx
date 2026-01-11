@@ -281,6 +281,103 @@ export default function TestContent({ testId }: TestContentProps) {
     setTestResults({ total, correct });
   };
 
+  const getTestGrade = (
+    correct: number,
+    total: number
+  ): {
+    status: 'passed' | 'failed';
+    grade: 'excellent' | 'good' | 'passing' | 'failed';
+    gradeText: string;
+    gradeColor: string;
+  } => {
+    // Handle edge cases
+    if (total === 0 || !isFinite(total) || !isFinite(correct)) {
+      return {
+        status: 'failed',
+        grade: 'failed',
+        gradeText: 'Չանցած',
+        gradeColor: 'from-red-500 to-rose-600',
+      };
+    }
+
+    // 20 հարցից 18 = անցողիկ, 19 = լավ, 20 = գերազանց
+    if (total === 20) {
+      if (correct === 20) {
+        return {
+          status: 'passed',
+          grade: 'excellent',
+          gradeText: 'Գերազանց',
+          gradeColor: 'from-green-500 to-emerald-600',
+        };
+      } else if (correct === 19) {
+        return {
+          status: 'passed',
+          grade: 'good',
+          gradeText: 'Լավ',
+          gradeColor: 'from-blue-500 to-cyan-600',
+        };
+      } else if (correct >= 18) {
+        return {
+          status: 'passed',
+          grade: 'passing',
+          gradeText: 'Անցողիկ',
+          gradeColor: 'from-[#FA8604] to-[#FFA64D]',
+        };
+      } else {
+        return {
+          status: 'failed',
+          grade: 'failed',
+          gradeText: 'Չանցած',
+          gradeColor: 'from-red-500 to-rose-600',
+        };
+      }
+    }
+
+    // Calculate percentage safely
+    const percentage = (correct / total) * 100;
+
+    // Check if percentage is valid
+    if (!isFinite(percentage) || percentage < 0) {
+      return {
+        status: 'failed',
+        grade: 'failed',
+        gradeText: 'Չանցած',
+        gradeColor: 'from-red-500 to-rose-600',
+      };
+    }
+
+    // Այլ թեստերի համար (եթե total !== 20)
+    if (percentage >= 90) {
+      return {
+        status: 'passed',
+        grade: 'excellent',
+        gradeText: 'Գերազանց',
+        gradeColor: 'from-green-500 to-emerald-600',
+      };
+    } else if (percentage >= 85) {
+      return {
+        status: 'passed',
+        grade: 'good',
+        gradeText: 'Լավ',
+        gradeColor: 'from-blue-500 to-cyan-600',
+      };
+    } else if (percentage >= 75) {
+      return {
+        status: 'passed',
+        grade: 'passing',
+        gradeText: 'Անցողիկ',
+        gradeColor: 'from-[#FA8604] to-[#FFA64D]',
+      };
+    } else {
+      return {
+        status: 'failed',
+        grade: 'failed',
+        gradeText: 'Չանցած',
+        gradeColor: 'from-red-500 to-rose-600',
+      };
+    }
+  };
+
   const handleSubmitTest = () => {
     if (testCompleted) return;
 
@@ -360,50 +457,75 @@ export default function TestContent({ testId }: TestContentProps) {
         </div>
 
         {/* Results Display */}
-        {testCompleted && testResults && (
-          <div className="mb-8 p-8 bg-gradient-to-r from-[#FA8604] to-[#FFA64D] rounded-[20px] text-white text-center">
-            <h2 className="text-3xl font-bold mb-4">Թեստը ավարտված է</h2>
-            <div className="text-5xl font-bold">
-              {testResults.correct} / {testResults.total}
-            </div>
-            <p className="text-xl mt-2">
-              Ճիշտ պատասխաններ: {testResults.correct}
-            </p>
-            <div className="mt-6">
-              <button
-                onClick={() => router.push(SITE_URL.TESTS)}
-                className="bg-white text-[#FA8604] px-8 py-3 rounded-[20px] font-bold hover:opacity-90 transition-opacity mr-4"
+        {testCompleted &&
+          testResults &&
+          (() => {
+            const gradeInfo = getTestGrade(
+              testResults.correct,
+              testResults.total
+            );
+            return (
+              <div
+                className={`mb-8 p-8 bg-gradient-to-r ${gradeInfo.gradeColor} rounded-[20px] text-white text-center`}
               >
-                Վերադառնալ թեստերին
-              </button>
-              <button
-                onClick={() => {
-                  // Clear all test data
-                  clearTestAnswers(testId);
-                  clearScreeningAnswers(testId);
-                  clearScreeningQuestionIds(testId);
-                  clearTestTimer();
+                <h2 className="text-3xl font-bold mb-4">Թեստը ավարտված է</h2>
+                <div className="mb-4">
+                  <div className="text-6xl font-bold mb-2">
+                    {testResults.correct} / {testResults.total}
+                  </div>
+                  <div className="text-3xl font-semibold mb-2">
+                    {gradeInfo.gradeText}
+                  </div>
+                  <p className="text-xl mt-2 opacity-95">
+                    Ճիշտ պատասխաններ: {testResults.correct}
+                  </p>
+                  {gradeInfo.status === 'passed' && (
+                    <div className="mt-4 text-2xl font-bold">
+                      ✓ Թեստը անցած է
+                    </div>
+                  )}
+                  {gradeInfo.status === 'failed' && (
+                    <div className="mt-4 text-2xl font-bold">
+                      ✗ Թեստը չի անցել
+                    </div>
+                  )}
+                </div>
+                <div className="mt-6">
+                  <button
+                    onClick={() => router.push(SITE_URL.TESTS)}
+                    className="bg-white text-[#FA8604] px-8 py-3 rounded-[20px] font-bold hover:opacity-90 transition-opacity mr-4 mb-4"
+                  >
+                    Վերադառնալ թեստերին
+                  </button>
+                  <button
+                    onClick={() => {
+                      // Clear all test data
+                      clearTestAnswers(testId);
+                      clearScreeningAnswers(testId);
+                      clearScreeningQuestionIds(testId);
+                      clearTestTimer();
 
-                  // Reset all state to initial values
-                  setSelectedQuestionIndex(0);
-                  setSelectedAnswers({});
-                  setSelectedScreeningIndex(0);
-                  setSelectedScreeningAnswers({});
-                  setTestCompleted(false);
-                  setTestResults(null);
-                  setTimeRemaining(30 * 60 * 1000);
-                  setScreeningPassed(false);
+                      // Reset all state to initial values
+                      setSelectedQuestionIndex(0);
+                      setSelectedAnswers({});
+                      setSelectedScreeningIndex(0);
+                      setSelectedScreeningAnswers({});
+                      setTestCompleted(false);
+                      setTestResults(null);
+                      setTimeRemaining(30 * 60 * 1000);
+                      setScreeningPassed(false);
 
-                  // Reload page to get new random screening questions
-                  window.location.reload();
-                }}
-                className="bg-white/20 text-white px-8 py-3 rounded-[20px] font-bold hover:bg-white/30 transition-colors border-2 border-white"
-              >
-                Կրկնել թեստը
-              </button>
-            </div>
-          </div>
-        )}
+                      // Reload page to get new random screening questions
+                      window.location.reload();
+                    }}
+                    className="bg-white/20 text-white px-8 py-3 rounded-[20px] font-bold hover:bg-white/30 transition-colors border-2 border-white"
+                  >
+                    Կրկնել թեստը
+                  </button>
+                </div>
+              </div>
+            );
+          })()}
 
         {/* Screening Phase */}
         {!screeningPassed && (
