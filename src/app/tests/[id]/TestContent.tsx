@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import QuestionCard from '@/components/common/learn-rules-road/QuestionCard';
-import { getTestById, TestQuestion } from '@/app/actions/tests';
+import { getTestById, getAllTests, TestQuestion } from '@/app/actions/tests';
 import {
   saveTestAnswer,
   getTestAnswer,
@@ -41,6 +41,7 @@ export default function TestContent({ testId }: TestContentProps) {
     total: number;
     correct: number;
   } | null>(null);
+  const [nextTestId, setNextTestId] = useState<number | null>(null);
 
   // Initialize test timer
   useEffect(() => {
@@ -156,6 +157,34 @@ export default function TestContent({ testId }: TestContentProps) {
     const correct = answers.filter((a) => a.isCorrect).length;
     const total = questions.length;
     setTestResults({ total, correct });
+  };
+
+  // Find next test ID
+  useEffect(() => {
+    async function findNextTest() {
+      try {
+        const allTests = await getAllTests();
+        const currentIndex = allTests.findIndex((t) => t.id === testId);
+        if (currentIndex >= 0 && currentIndex < allTests.length - 1) {
+          setNextTestId(allTests[currentIndex + 1].id);
+        } else {
+          setNextTestId(null);
+        }
+      } catch (error) {
+        console.error('Error finding next test:', error);
+        setNextTestId(null);
+      }
+    }
+
+    if (testCompleted && testResults) {
+      findNextTest();
+    }
+  }, [testCompleted, testResults, testId]);
+
+  const handleNextTest = () => {
+    if (nextTestId) {
+      router.push(`${SITE_URL.TESTS}/${nextTestId}`);
+    }
   };
 
   const getTestGrade = (
@@ -419,6 +448,19 @@ export default function TestContent({ testId }: TestContentProps) {
                       handleAnswerSelect(questionId, optionIndex)
                     }
                     showResults={testCompleted}
+                    isTestPage={true}
+                    testPassed={
+                      testCompleted &&
+                      testResults !== null &&
+                      (() => {
+                        const gradeInfo = getTestGrade(
+                          testResults.correct,
+                          testResults.total
+                        );
+                        return gradeInfo.status === 'passed';
+                      })()
+                    }
+                    onNextTest={nextTestId ? handleNextTest : undefined}
                   />
 
                   <div className="flex justify-between items-center my-6">

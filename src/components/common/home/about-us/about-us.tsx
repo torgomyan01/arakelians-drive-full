@@ -252,7 +252,7 @@ function AboutUs() {
               onClick={handleRegisterClick}
               className="rounded-[10px] bg-[linear-gradient(90deg,#FA8604_0%,rgba(250,134,4,0.6)_100%)] py-2 px-[35px] text-[22px] text-white self-center z-0 cursor-pointer hover:opacity-90 transition-opacity"
             >
-              Գրանցվել
+              Գրանցվել դասընթացին
             </button>
             <span className="absolute rounded-[10px] bg-white shadow-[0_4px_4px_rgba(0,0,0,0.25)] -top-2.5 right-5 py-0.5 px-2.5 text-sm text-[#FA8604] font-bold">
               {formatTime(timeLeft)}

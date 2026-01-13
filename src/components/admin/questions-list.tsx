@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { QuestionWithOptions } from '@/app/actions/admin-questions';
 import QuestionEditModal from './question-edit-modal';
 import { getImageUrl } from '@/utils/image-utils';
+import { Search, X } from 'lucide-react';
 
 interface QuestionsListProps {
   questions: QuestionWithOptions[];
@@ -21,20 +22,34 @@ export default function QuestionsList({
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [filterCategory, setFilterCategory] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
-  const filteredQuestions = useMemo(
-    () =>
-      filterCategory
-        ? questions.filter((q) => q.lessonCategoryId === filterCategory)
-        : questions,
-    [questions, filterCategory]
-  );
+  const filteredQuestions = useMemo(() => {
+    let filtered = questions;
 
-  // Reset to page 1 when filter changes
+    // Filter by category
+    if (filterCategory) {
+      filtered = filtered.filter((q) => q.lessonCategoryId === filterCategory);
+    }
+
+    // Filter by search query (title or jsonId)
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(
+        (q) =>
+          q.title.toLowerCase().includes(query) ||
+          q.jsonId.toString().includes(query)
+      );
+    }
+
+    return filtered;
+  }, [questions, filterCategory, searchQuery]);
+
+  // Reset to page 1 when filter or search changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [filterCategory]);
+  }, [filterCategory, searchQuery]);
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredQuestions.length / ITEMS_PER_PAGE);
@@ -76,32 +91,55 @@ export default function QuestionsList({
             + Նոր հարց
           </button>
         </div>
-        <div className="flex justify-between items-center">
-          <p className="text-[#8D8D8D]">
-            Ընդամենը {filteredQuestions.length} հարց
-            {filteredQuestions.length !== questions.length &&
-              ` (${questions.length} ընդամենը)`}
-          </p>
-          <div className="flex gap-4 items-center">
-            <label className="text-sm font-medium text-[#1A2229]">
-              Հարցաշար:
-            </label>
-            <select
-              value={filterCategory || ''}
-              onChange={(e) =>
-                handleFilterChange(
-                  e.target.value ? Number(e.target.value) : null
-                )
-              }
-              className="border border-gray-300 rounded-[10px] px-4 py-2 focus:outline-none focus:border-[#FA8604] max-w-[200px]"
-            >
-              <option value="">Բոլորը</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name} ({cat.questionCount})
-                </option>
-              ))}
-            </select>
+        <div className="flex flex-col gap-4">
+          <div className="flex justify-between items-center">
+            <p className="text-[#8D8D8D]">
+              Ընդամենը {filteredQuestions.length} հարց
+              {filteredQuestions.length !== questions.length &&
+                ` (${questions.length} ընդամենը)`}
+            </p>
+            <div className="flex gap-4 items-center">
+              <label className="text-sm font-medium text-[#1A2229]">
+                Հարցաշար:
+              </label>
+              <select
+                value={filterCategory || ''}
+                onChange={(e) =>
+                  handleFilterChange(
+                    e.target.value ? Number(e.target.value) : null
+                  )
+                }
+                className="border border-gray-300 rounded-[10px] px-4 py-2 focus:outline-none focus:border-[#FA8604] max-w-[200px]"
+              >
+                <option value="">Բոլորը</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name} ({cat.questionCount})
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="relative">
+            <div className="relative flex items-center">
+              <Search className="absolute left-4 text-[#8D8D8D] w-5 h-5 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Որոնել վերնագրով կամ ID-ով..."
+                className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#FA8604]/20 focus:border-[#FA8604] transition-all bg-white shadow-sm hover:shadow-md"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 p-1.5 rounded-full hover:bg-gray-100 transition-colors text-[#8D8D8D] hover:text-[#1A2229]"
+                  aria-label="Մաքրել որոնումը"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>

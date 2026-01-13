@@ -25,6 +25,9 @@ interface QuestionCardProps {
   onAnswerSelect: (questionId: number, optionIndex: number) => void;
   showResults?: boolean; // If false, don't show correct/wrong indicators
   allQuestions?: Question[]; // All questions for preloading upcoming images
+  isTestPage?: boolean; // If true, this is a test page (not learning page)
+  testPassed?: boolean; // If true, test was passed successfully
+  onNextTest?: () => void; // Callback to navigate to next test
 }
 
 export default function QuestionCard({
@@ -33,10 +36,15 @@ export default function QuestionCard({
   onAnswerSelect,
   showResults = true,
   allQuestions = [],
+  isTestPage = false,
+  testPassed = false,
+  onNextTest,
 }: QuestionCardProps) {
   const handleAnswerSelect = (optionIndex: number) => {
     onAnswerSelect(question.id, optionIndex);
   };
+
+  console.log(question);
 
   // Find current question index
   const currentIndex =
@@ -210,6 +218,19 @@ export default function QuestionCard({
           );
         })}
       </div>
+
+      {/* Show "Next Test" button only on test pages when test is passed */}
+      {isTestPage && testPassed && onNextTest && (
+        <div className="mt-8 flex justify-center">
+          <button
+            onClick={onNextTest}
+            className="inline-flex items-center rounded-[30px] cursor-pointer bg-[linear-gradient(90deg,#FA8604_0%,rgba(250,134,4,0.6)_100%)] px-8 py-3 text-lg text-white font-semibold hover:opacity-90 transition-opacity shadow-lg"
+          >
+            <span>Անցնել հաջորդ թեստին</span>
+            <img src="/images/arr-w-right.svg" alt="" className="ml-2.5" />
+          </button>
+        </div>
+      )}
     </>
   );
 }
