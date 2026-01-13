@@ -12,6 +12,7 @@ import type { Metadata } from 'next';
 
 import { Providers } from '@/app/providers';
 import CookieConsent from '@/components/common/cookie-consent/cookie-consent';
+import YandexMetrika from '@/components/layout/yandexMetrika/YandexMetrika';
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -50,6 +51,7 @@ export default async function RootLayout({
         <NextTopLoader />
         <Providers>{children}</Providers>
         <CookieConsent />
+        <YandexMetrika />
       </body>
     </html>
   );
