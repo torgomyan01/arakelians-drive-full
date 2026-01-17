@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 import { SITE_URL } from '@/utils/consts';
 
 interface TestsDropdownProps {
@@ -168,15 +169,18 @@ export default function TestsDropdown({
     pathname.startsWith(SITE_URL.TESTS + '/') ||
     pathname.startsWith(SITE_URL.PSYCHOLOGICAL_TESTS + '/');
 
+  const isTestsPageActive = pathname === SITE_URL.TESTS || pathname.startsWith(SITE_URL.TESTS + '/');
+  const isPsychologicalTestsPageActive = pathname === SITE_URL.PSYCHOLOGICAL_TESTS || pathname.startsWith(SITE_URL.PSYCHOLOGICAL_TESTS + '/');
+
   return (
     <li
-      className="mr-4 max-md:mb-4 max-md:mr-0 last:mr-0 max-md:w-full max-md:text-center relative"
+      className="mr-4 max-md:mb-2 max-md:mr-0 last:mr-0 max-md:w-full relative"
       onMouseEnter={handleDesktopMouseEnter}
       onMouseLeave={handleDesktopMouseLeave}
       ref={dropdownRef}
     >
       <div className="relative">
-        {/* Button */}
+        {/* Desktop Button */}
         <button
           ref={buttonRef}
           type="button"
@@ -186,13 +190,44 @@ export default function TestsDropdown({
           aria-haspopup="true"
           className={`${linkBase} ${
             isTestsActive ? 'text-[#FA8604]' : ''
-          } text-base max-md:text-xl max-md:text-[#1A2229] max-md:font-semibold max-md:py-3 max-md:block max-md:w-full max-md:text-center flex items-center gap-1 transition-colors hover:text-[#FA8604] max-md:cursor-pointer max-md:select-none max-md:touch-manipulation`}
+          } text-base max-md:hidden flex items-center gap-1 transition-colors hover:text-[#FA8604]`}
         >
           Թեստեր
           <i
             className={`fas fa-chevron-down text-xs transition-all duration-300 ml-2 ease-in-out ${
               isOpen ? 'rotate-180 scale-110' : 'rotate-0 scale-100'
             }`}
+            aria-hidden="true"
+          ></i>
+        </button>
+
+        {/* Mobile Button */}
+        <button
+          ref={buttonRef}
+          type="button"
+          onClick={handleMobileToggle}
+          aria-expanded={isOpen}
+          aria-haspopup="true"
+          className={`
+            hidden max-md:flex items-center gap-4 px-6 py-4 rounded-2xl
+            text-lg font-semibold transition-all duration-300 w-full
+            ${
+              isTestsActive
+                ? 'bg-gradient-to-r from-[#FA8604] to-[#FF9A2E] text-white shadow-lg shadow-[#FA8604]/30'
+                : 'text-[#1A2229] bg-white/80 hover:bg-[#FA8604]/10 hover:text-[#FA8604] hover:shadow-md'
+            }
+          `}
+        >
+          <i
+            className={`fa-solid fa-clipboard-question text-xl ${
+              isTestsActive ? 'text-white' : 'text-[#FA8604]'
+            }`}
+          ></i>
+          <span className="flex-1 text-left">Թեստեր</span>
+          <i
+            className={`fas fa-chevron-down text-sm transition-all duration-300 ease-in-out ${
+              isOpen ? 'rotate-180' : 'rotate-0'
+            } ${isTestsActive ? 'text-white' : 'text-[#FA8604]'}`}
             aria-hidden="true"
           ></i>
         </button>
@@ -207,29 +242,28 @@ export default function TestsDropdown({
           />
         )}
 
-        {/* Dropdown Menu */}
+        {/* Desktop Dropdown Menu */}
         <div
-          className={`absolute top-full left-0 mt-1 bg-white rounded-[10px] shadow-lg min-w-[300px] z-50 overflow-hidden max-md:relative max-md:mt-2 max-md:shadow-none max-md:bg-transparent max-md:rounded-xl max-md:w-full transition-all duration-300 ease-out ${
+          className={`absolute top-full left-0 mt-1 bg-white rounded-[10px] shadow-lg min-w-[300px] z-50 overflow-hidden max-md:hidden transition-all duration-300 ease-out ${
             isOpen
-              ? 'opacity-100 translate-y-0 scale-100 max-md:opacity-100 max-md:max-h-[300px] pointer-events-auto'
-              : 'opacity-0 -translate-y-2 scale-95 max-md:max-h-0 max-md:opacity-0 pointer-events-none'
+              ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto'
+              : 'opacity-0 -translate-y-2 scale-95 pointer-events-none'
           }`}
           onMouseEnter={handleDesktopMouseEnter}
           onMouseLeave={handleDesktopMouseLeave}
           role="menu"
           aria-orientation="vertical"
         >
-          <div className="py-1 max-md:transition-all max-md:duration-300 max-md:overflow-hidden">
+          <div className="py-1">
             <Link
               href={SITE_URL.TESTS}
               onClick={handleLinkClick}
               role="menuitem"
-              className={`block px-4 py-2.5 hover:bg-[#FA8604]/10 transition-all duration-200 rounded-t-[10px] max-md:rounded-xl transform hover:translate-x-1 hover:scale-[1.02] ${
-                pathname === SITE_URL.TESTS ||
-                pathname.startsWith(SITE_URL.TESTS + '/')
+              className={`block px-4 py-2.5 hover:bg-[#FA8604]/10 transition-all duration-200 rounded-t-[10px] transform hover:translate-x-1 hover:scale-[1.02] ${
+                isTestsPageActive
                   ? 'text-[#FA8604] font-medium bg-[#FA8604]/5'
                   : linkBase
-              } max-md:py-3 max-md:px-6 max-md:hover:bg-[#FA8604]/10`}
+              }`}
             >
               <span className="flex items-center gap-2">
                 <i className="fas fa-graduation-cap text-sm"></i>
@@ -240,12 +274,11 @@ export default function TestsDropdown({
               href={SITE_URL.PSYCHOLOGICAL_TESTS}
               onClick={handleLinkClick}
               role="menuitem"
-              className={`block px-4 py-2.5 hover:bg-[#FA8604]/10 transition-all duration-200 rounded-b-[10px] max-md:rounded-xl max-md:mt-1 transform hover:translate-x-1 hover:scale-[1.02] ${
-                pathname === SITE_URL.PSYCHOLOGICAL_TESTS ||
-                pathname.startsWith(SITE_URL.PSYCHOLOGICAL_TESTS + '/')
+              className={`block px-4 py-2.5 hover:bg-[#FA8604]/10 transition-all duration-200 rounded-b-[10px] transform hover:translate-x-1 hover:scale-[1.02] ${
+                isPsychologicalTestsPageActive
                   ? 'text-[#FA8604] font-medium bg-[#FA8604]/5'
                   : linkBase
-              } max-md:py-3 max-md:px-6 max-md:hover:bg-[#FA8604]/10`}
+              }`}
             >
               <span className="flex items-center gap-2">
                 <i className="fas fa-brain text-sm"></i>
@@ -254,6 +287,78 @@ export default function TestsDropdown({
             </Link>
           </div>
         </div>
+
+        {/* Mobile Dropdown Menu */}
+        <AnimatePresence>
+          {isOpen && isMobile && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              className="hidden max-md:block overflow-hidden"
+            >
+              <div className="mt-2 space-y-2 pl-4">
+                <Link
+                  href={SITE_URL.TESTS}
+                  onClick={handleLinkClick}
+                  className={`
+                    flex items-center gap-4 px-6 py-4 rounded-2xl
+                    text-lg font-semibold transition-all duration-300
+                    ${
+                      isTestsPageActive
+                        ? 'bg-gradient-to-r from-[#FA8604] to-[#FF9A2E] text-white shadow-lg shadow-[#FA8604]/30'
+                        : 'text-[#1A2229] bg-white/80 hover:bg-[#FA8604]/10 hover:text-[#FA8604] hover:shadow-md'
+                    }
+                  `}
+                >
+                  <i
+                    className={`fa-solid fa-graduation-cap text-xl ${
+                      isTestsPageActive ? 'text-white' : 'text-[#FA8604]'
+                    }`}
+                  ></i>
+                  <span>Քննական թեստեր</span>
+                  {isTestsPageActive && (
+                    <motion.div
+                      className="ml-auto w-2 h-2 rounded-full bg-white"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.1 }}
+                    />
+                  )}
+                </Link>
+                <Link
+                  href={SITE_URL.PSYCHOLOGICAL_TESTS}
+                  onClick={handleLinkClick}
+                  className={`
+                    flex items-center gap-4 px-6 py-4 rounded-2xl
+                    text-lg font-semibold transition-all duration-300
+                    ${
+                      isPsychologicalTestsPageActive
+                        ? 'bg-gradient-to-r from-[#FA8604] to-[#FF9A2E] text-white shadow-lg shadow-[#FA8604]/30'
+                        : 'text-[#1A2229] bg-white/80 hover:bg-[#FA8604]/10 hover:text-[#FA8604] hover:shadow-md'
+                    }
+                  `}
+                >
+                  <i
+                    className={`fa-solid fa-brain text-xl ${
+                      isPsychologicalTestsPageActive ? 'text-white' : 'text-[#FA8604]'
+                    }`}
+                  ></i>
+                  <span>Հոգեբանական Թեստեր</span>
+                  {isPsychologicalTestsPageActive && (
+                    <motion.div
+                      className="ml-auto w-2 h-2 rounded-full bg-white"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.1 }}
+                    />
+                  )}
+                </Link>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </li>
   );

@@ -173,6 +173,27 @@
   content: '\f0e3';
 }
 
+/* Social Media Icons */
+.fa-instagram:before {
+  content: '\f16d';
+  font-family: 'Font Awesome 6 Brands';
+}
+
+.fa-facebook:before {
+  content: '\f09a';
+  font-family: 'Font Awesome 6 Brands';
+}
+
+.fa-youtube:before {
+  content: '\f167';
+  font-family: 'Font Awesome 6 Brands';
+}
+
+.fa-tiktok:before {
+  content: '\e07b';
+  font-family: 'Font Awesome 6 Brands';
+}
+
 /*---------------------------------*/
 
 @font-face {

@@ -1,6 +1,7 @@
 import Footer from '../footer/footer';
 import Navbar from '../navbar/navbar';
 import CallButton from '../call-button/call-button';
+import SocialMediaIcons from '../social-media-icons/social-media-icons';
 import { getSetting } from '@/app/actions/admin-settings';
 
 interface MainTemplateProps {
@@ -21,6 +22,7 @@ async function MainTemplate({ children, phoneNumber }: MainTemplateProps) {
 
       <Footer />
       <CallButton phoneNumber={finalPhoneNumber} />
+      <SocialMediaIcons />
     </>
   );
 }
