@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import MainTemplate from '@/components/layout/main-template/main-template';
 import {
   getRulesSectionBySlug,
@@ -9,6 +10,7 @@ import {
 import { SITE_URL } from '@/utils/consts';
 import RuleContentRenderer from '@/components/common/rules/RuleContentRenderer';
 import RuleSearch from '@/components/common/rules/RuleSearch';
+import { getImageUrl, imageLoader } from '@/utils/image-utils';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -152,8 +154,8 @@ export default async function RulesSectionPage({ params }: PageProps) {
 
           {/* Section Header */}
           <div className="bg-gradient-to-r from-[#FA8604] to-[#FFA64D] rounded-2xl p-8 mb-8 text-white">
-            <div className="flex items-center justify-between max-[767px]:flex-col max-[767px]:items-start">
-              <div>
+            <div className="flex items-center justify-between max-[767px]:flex-col max-[767px]:items-start gap-6">
+              <div className="flex-1">
                 <div className="flex items-center mb-4">
                   <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mr-4">
                     <span className="text-2xl font-bold">
@@ -171,6 +173,27 @@ export default async function RulesSectionPage({ params }: PageProps) {
                   {section.description}
                 </p>
               </div>
+              {(() => {
+                const sectionWithImage = section as typeof section & { image?: string | null };
+                return sectionWithImage.image ? (
+                  <div className="shrink-0 max-[767px]:w-full">
+                    <div className="relative w-full max-w-md h-48 md:h-64 rounded-xl overflow-hidden bg-white/10 backdrop-blur-sm border border-white/20">
+                      <Image
+                        src={getImageUrl(sectionWithImage.image)}
+                        alt={section.title}
+                        fill
+                        className="object-contain p-4"
+                        loader={imageLoader}
+                        unoptimized
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  </div>
+                ) : null;
+              })()}
             </div>
           </div>
 

@@ -12,6 +12,7 @@ export interface RulesSection {
   order: number;
   icon: string | null;
   color: string | null;
+  image: string | null;
   createdAt: Date;
   updatedAt: Date;
   items?: RuleItem[];
@@ -102,6 +103,7 @@ export async function createRulesSection(data: {
   order?: number;
   icon?: string | null;
   color?: string | null;
+  image?: string | null;
   items?: Array<{
     number: string;
     title?: string | null;
@@ -143,6 +145,7 @@ export async function createRulesSection(data: {
         order: order,
         icon: data.icon || null,
         color: data.color || null,
+        image: data.image || null,
         items: data.items
           ? {
               create: data.items.map((item, index) => ({
@@ -183,6 +186,7 @@ export async function updateRulesSection(
     order?: number;
     icon?: string | null;
     color?: string | null;
+    image?: string | null;
   }
 ) {
   try {
@@ -225,6 +229,7 @@ export async function updateRulesSection(
     if (data.order !== undefined) updateData.order = data.order;
     if (data.icon !== undefined) updateData.icon = data.icon;
     if (data.color !== undefined) updateData.color = data.color;
+    if (data.image !== undefined) updateData.image = data.image;
 
     const updatedSection = await prisma.rulesSection.update({
       where: { id },

@@ -159,6 +159,33 @@ export async function updateRoadSign(
   }
 }
 
+export async function updateRoadSignsOrder(
+  updates: { id: number; order: number }[]
+) {
+  try {
+    // Use a transaction to update all signs at once
+    await prisma.$transaction(
+      updates.map(({ id, order }) =>
+        prisma.roadSign.update({
+          where: { id },
+          data: { order },
+        })
+      )
+    );
+
+    revalidatePath('/road-signs');
+    revalidatePath('/admin/road-signs');
+
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error updating road signs order:', error);
+    return {
+      success: false,
+      error: error.message || 'Failed to update road signs order',
+    };
+  }
+}
+
 export async function deleteRoadSign(id: number) {
   try {
     // Get the sign to delete image if exists

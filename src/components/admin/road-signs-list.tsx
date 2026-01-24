@@ -8,13 +8,137 @@ import {
   createRoadSign,
   updateRoadSign,
   deleteRoadSign,
+  updateRoadSignsOrder,
 } from '@/app/actions/admin-road-signs';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { GripVertical } from 'lucide-react';
 
 interface RoadSignsListProps {
   signs: RoadSign[];
 }
 
 const ITEMS_PER_PAGE = 20;
+
+interface SortableRowProps {
+  sign: RoadSign;
+  onEdit: (sign: RoadSign) => void;
+  onDelete: (id: number) => void;
+  isDeleting: number | null;
+  getCategoryColor: (category: RoadSign['category']) => string;
+}
+
+function SortableRow({
+  sign,
+  onEdit,
+  onDelete,
+  isDeleting,
+  getCategoryColor,
+}: SortableRowProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: sign.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <tr
+      ref={setNodeRef}
+      style={style}
+      className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${
+        isDragging ? 'bg-blue-50 shadow-lg' : ''
+      }`}
+    >
+      <td className="py-4 px-4">
+        <div className="flex items-center gap-2">
+          <button
+            {...attributes}
+            {...listeners}
+            className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 transition-colors p-1"
+            aria-label="Տեղափոխել"
+          >
+            <GripVertical size={18} />
+          </button>
+          <div className="font-medium text-[#1A2229]">{sign.number}</div>
+        </div>
+      </td>
+      <td className="py-4 px-4">
+        <div className="font-medium text-[#1A2229]">{sign.name}</div>
+        {sign.description && (
+          <div className="text-sm text-[#8D8D8D] mt-1 line-clamp-1">
+            {sign.description}
+          </div>
+        )}
+      </td>
+      <td className="py-4 px-4">
+        <span
+          className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(
+            sign.category
+          )}`}
+        >
+          {categoryLabels[sign.category]}
+        </span>
+      </td>
+      <td className="py-4 px-4">
+        {sign.image ? (
+          <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
+            <img
+              src={sign.image}
+              alt={sign.name}
+              className="w-full h-full object-contain"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
+          </div>
+        ) : (
+          <span className="text-sm text-[#8D8D8D]">-</span>
+        )}
+      </td>
+      <td className="py-4 px-4">
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={() => onEdit(sign)}
+            className="text-[#FA8604] hover:text-[#e67503] transition-colors px-3 py-1 rounded-[10px] hover:bg-[#FA8604]/10"
+          >
+            Խմբագրել
+          </button>
+          <button
+            onClick={() => onDelete(sign.id)}
+            disabled={isDeleting === sign.id}
+            className="text-red-500 hover:text-red-700 transition-colors px-3 py-1 rounded-[10px] hover:bg-red-50 disabled:opacity-50"
+          >
+            {isDeleting === sign.id ? 'Ջնջվում է...' : 'Ջնջել'}
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+}
 
 export default function RoadSignsList({
   signs: initialSigns,
@@ -27,6 +151,14 @@ export default function RoadSignsList({
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
+  const [isSavingOrder, setIsSavingOrder] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const filteredSigns = useMemo(() => {
     let filtered = signs;
@@ -47,7 +179,15 @@ export default function RoadSignsList({
       );
     }
 
-    return filtered;
+    // Sort by order within filtered results
+    return [...filtered].sort((a, b) => {
+      // If same category, sort by order
+      if (a.category === b.category) {
+        return a.order - b.order;
+      }
+      // Otherwise maintain category order
+      return 0;
+    });
   }, [signs, filterCategory, searchTerm]);
 
   useEffect(() => {
@@ -113,6 +253,76 @@ export default function RoadSignsList({
     }
   };
 
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) {
+      return;
+    }
+
+    // Find the dragged sign and target sign
+    const draggedSign = signs.find((s) => s.id === active.id);
+    const targetSign = signs.find((s) => s.id === over.id);
+
+    if (!draggedSign || !targetSign) {
+      return;
+    }
+
+    // Only allow reordering within the same category
+    if (draggedSign.category !== targetSign.category) {
+      return;
+    }
+
+    // Get all signs in the same category, sorted by current order
+    const categorySigns = signs
+      .filter((s) => s.category === draggedSign.category)
+      .sort((a, b) => a.order - b.order);
+
+    // Find the indices in the category
+    const categoryOldIndex = categorySigns.findIndex((s) => s.id === active.id);
+    const categoryNewIndex = categorySigns.findIndex((s) => s.id === over.id);
+
+    if (categoryOldIndex === -1 || categoryNewIndex === -1) {
+      return;
+    }
+
+    // Reorder within the category
+    const reorderedCategory = arrayMove(
+      categorySigns,
+      categoryOldIndex,
+      categoryNewIndex
+    );
+
+    // Create updates with new order values
+    const updates = reorderedCategory.map((sign, index) => ({
+      id: sign.id,
+      order: index,
+    }));
+
+    // Optimistically update the UI
+    setSigns((prev) => {
+      const updated = [...prev];
+      updates.forEach(({ id, order }) => {
+        const signIndex = updated.findIndex((s) => s.id === id);
+        if (signIndex !== -1) {
+          updated[signIndex] = { ...updated[signIndex], order };
+        }
+      });
+      return updated;
+    });
+
+    // Save to database
+    setIsSavingOrder(true);
+    const result = await updateRoadSignsOrder(updates);
+    setIsSavingOrder(false);
+
+    if (!result.success) {
+      // Revert on error
+      setSigns(initialSigns);
+      alert(result.error || 'Սխալ է տեղի ունեցել հերթականությունը թարմացնելիս');
+    }
+  };
+
   const getCategoryColor = (category: RoadSign['category']) => {
     switch (category) {
       case 'warning':
@@ -151,11 +361,16 @@ export default function RoadSignsList({
           </button>
         </div>
         <div className="flex justify-between items-center gap-4 flex-wrap">
-          <p className="text-[#8D8D8D]">
-            Ընդամենը {filteredSigns.length} նշան
-            {filteredSigns.length !== signs.length &&
-              ` (${signs.length} ընդամենը)`}
-          </p>
+          <div className="flex items-center gap-3">
+            <p className="text-[#8D8D8D]">
+              Ընդամենը {filteredSigns.length} նշան
+              {filteredSigns.length !== signs.length &&
+                ` (${signs.length} ընդամենը)`}
+            </p>
+            {isSavingOrder && (
+              <span className="text-sm text-[#FA8604]">Պահպանվում է...</span>
+            )}
+          </div>
           <div className="flex gap-4 items-center flex-wrap">
             <input
               type="text"
@@ -194,6 +409,9 @@ export default function RoadSignsList({
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200">
+                  <th className="text-left py-3 px-4 font-semibold text-[#1A2229] w-12">
+                    {/* Drag handle column */}
+                  </th>
                   <th className="text-left py-3 px-4 font-semibold text-[#1A2229]">
                     Համար
                   </th>
@@ -211,73 +429,29 @@ export default function RoadSignsList({
                   </th>
                 </tr>
               </thead>
-              <tbody>
-                {paginatedSigns.map((sign) => (
-                  <tr
-                    key={sign.id}
-                    className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                  >
-                    <td className="py-4 px-4">
-                      <div className="font-medium text-[#1A2229]">
-                        {sign.number}
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="font-medium text-[#1A2229]">
-                        {sign.name}
-                      </div>
-                      {sign.description && (
-                        <div className="text-sm text-[#8D8D8D] mt-1 line-clamp-1">
-                          {sign.description}
-                        </div>
-                      )}
-                    </td>
-                    <td className="py-4 px-4">
-                      <span
-                        className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(
-                          sign.category
-                        )}`}
-                      >
-                        {categoryLabels[sign.category]}
-                      </span>
-                    </td>
-                    <td className="py-4 px-4">
-                      {sign.image ? (
-                        <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
-                          <img
-                            src={sign.image}
-                            alt={sign.name}
-                            className="w-full h-full object-contain"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display =
-                                'none';
-                            }}
-                          />
-                        </div>
-                      ) : (
-                        <span className="text-sm text-[#8D8D8D]">-</span>
-                      )}
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="flex justify-end gap-2">
-                        <button
-                          onClick={() => handleEdit(sign)}
-                          className="text-[#FA8604] hover:text-[#e67503] transition-colors px-3 py-1 rounded-[10px] hover:bg-[#FA8604]/10"
-                        >
-                          Խմբագրել
-                        </button>
-                        <button
-                          onClick={() => handleDelete(sign.id)}
-                          disabled={isDeleting === sign.id}
-                          className="text-red-500 hover:text-red-700 transition-colors px-3 py-1 rounded-[10px] hover:bg-red-50 disabled:opacity-50"
-                        >
-                          {isDeleting === sign.id ? 'Ջնջվում է...' : 'Ջնջել'}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={paginatedSigns.map((s) => s.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <tbody>
+                    {paginatedSigns.map((sign) => (
+                      <SortableRow
+                        key={sign.id}
+                        sign={sign}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                        isDeleting={isDeleting}
+                        getCategoryColor={getCategoryColor}
+                      />
+                    ))}
+                  </tbody>
+                </SortableContext>
+              </DndContext>
             </table>
           </div>
 

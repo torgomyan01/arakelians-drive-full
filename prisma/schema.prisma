@@ -139,6 +139,7 @@ model RulesSection {
   order       Int       @default(0)
   icon        String?   @db.VarChar(100)
   color       String?   @db.VarChar(50)
+  image       String?   @db.VarChar(500)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   items       RuleItem[]

@@ -371,7 +371,7 @@ export default function LearnRulesRoadContent() {
 
                 {/* Questions Sidebar */}
                 <div className="min-w-[312px] w-[312px] max-h-[800px] pr-2 overflow-y-auto pl-4 ml-4 border-l border-l-[#E6E6E6] max-[1200px]:min-w-[270px] max-[767px]:min-w-full max-[767px]:ml-0 max-[767px]:pl-0 max-[767px]:border-none">
-                  {questions.map((question) => {
+                  {questions.map((question, index) => {
                     const isSelected = question.id === selectedQuestionId;
                     const savedAnswer = getQuestionAnswer(question.id);
                     const isAnswered = savedAnswer !== null;
@@ -397,10 +397,11 @@ export default function LearnRulesRoadContent() {
                       <div
                         key={question.id}
                         onClick={() => setSelectedQuestionId(question.id)}
+                        title={question.title}
                         className={`${questionItemBase} ${bgColor} ${textColor} cursor-pointer hover:opacity-80 transition-opacity`}
                       >
-                        {question.title.length > 27
-                          ? `${question.title.substring(0, 27)}...`
+                        {index + 1}. {question.title.length > 20
+                          ? `${question.title.substring(0, 20)}...`
                           : question.title}
                       </div>
                     );

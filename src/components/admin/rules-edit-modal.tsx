@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   RulesSection,
   RuleItem,
@@ -12,6 +12,7 @@ import {
   updateRuleItem,
   deleteRuleItem,
 } from '@/app/actions/admin-rules';
+import { getImageUrl } from '@/utils/image-utils';
 
 interface RulesEditModalProps {
   section: RulesSection | null;
@@ -34,7 +35,10 @@ export default function RulesEditModal({
     order: 0,
     icon: '',
     color: '',
+    image: '',
   });
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [ruleItems, setRuleItems] = useState<RuleItem[]>([]);
   const [selectedItem, setSelectedItem] = useState<RuleItem | null>(null);
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
@@ -51,8 +55,15 @@ export default function RulesEditModal({
         order: section.order,
         icon: section.icon || '',
         color: section.color || '',
+        image: section.image || '',
       });
       setRuleItems(section.items || []);
+      // Set image preview if image exists
+      if (section.image) {
+        setImagePreview(getImageUrl(section.image));
+      } else {
+        setImagePreview(null);
+      }
     } else {
       setFormData({
         title: '',
@@ -62,8 +73,10 @@ export default function RulesEditModal({
         order: 0,
         icon: '',
         color: '',
+        image: '',
       });
       setRuleItems([]);
+      setImagePreview(null);
     }
   }, [section]);
 
@@ -81,6 +94,73 @@ export default function RulesEditModal({
     }
   }, [formData.title, section]);
 
+  const handleRemoveImage = () => {
+    setImagePreview(null);
+    setFormData((prev) => ({ ...prev, image: '' }));
+  };
+
+  const handleImageFile = useCallback(async (file: File) => {
+    const allowedTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      setError('Միայն նկարներ են թույլատրված (JPG, PNG, GIF, WEBP)');
+      return;
+    }
+
+    const maxSize = 50 * 1024 * 1024; // 50MB
+    if (file.size > maxSize) {
+      setError('Ֆայլի չափը չպետք է գերազանցի 50MB');
+      return;
+    }
+
+    setUploadingImage(true);
+    setError('');
+
+    try {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+
+      const formDataToUpload = new FormData();
+      formDataToUpload.append('file', file);
+      formDataToUpload.append('type', 'rules-section');
+
+      const response = await fetch('/api/admin/upload-image', {
+        method: 'POST',
+        body: formDataToUpload,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Նկարի վերբեռնումը ձախողվեց');
+      }
+
+      const data = await response.json();
+      setFormData((prev) => ({
+        ...prev,
+        image: data.url || data.filename || '',
+      }));
+    } catch (err: any) {
+      setError(err.message || 'Նկարի վերբեռնումը ձախողվեց');
+      setImagePreview(null);
+    } finally {
+      setUploadingImage(false);
+    }
+  }, []);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await handleImageFile(file);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -95,6 +175,7 @@ export default function RulesEditModal({
         order: formData.order,
         icon: formData.icon || null,
         color: formData.color || null,
+        image: formData.image || null,
       });
 
       // Refresh section data after save if section exists
@@ -131,6 +212,7 @@ export default function RulesEditModal({
       if (refreshedSection) {
         setRuleItems(refreshedSection.items || []);
         // Update form data if section data changed
+        const refreshedSectionWithImage = refreshedSection as RulesSection & { image?: string | null };
         setFormData((prev) => ({
           ...prev,
           title: refreshedSection.title,
@@ -140,7 +222,14 @@ export default function RulesEditModal({
           order: refreshedSection.order,
           icon: refreshedSection.icon || '',
           color: refreshedSection.color || '',
+          image: refreshedSectionWithImage.image || '',
         }));
+        // Update image preview
+        if (refreshedSectionWithImage.image) {
+          setImagePreview(getImageUrl(refreshedSectionWithImage.image));
+        } else {
+          setImagePreview(null);
+        }
       }
     } catch (error) {
       console.error('Error refreshing section data:', error);
@@ -381,6 +470,57 @@ export default function RulesEditModal({
                 </p>
               </div>
 
+              {/* Image */}
+              <div>
+                <label className="block text-sm font-medium text-[#1A2229] mb-2">
+                  Նկար (ընտրովի)
+                </label>
+                {imagePreview ? (
+                  <div className="mb-4">
+                    <div className="relative inline-block">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="max-w-full max-h-64 rounded-[10px] border border-gray-300"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleRemoveImage}
+                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600 transition-colors"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
+                <div className="flex items-center gap-4">
+                  <label className="cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      disabled={uploadingImage}
+                    />
+                    <span className="inline-block px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-[10px] text-[#1A2229] font-medium transition-colors disabled:opacity-50">
+                      {uploadingImage ? 'Բեռնվում է...' : 'Ընտրել նկար'}
+                    </span>
+                  </label>
+                  {imagePreview && (
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="px-4 py-2 text-red-500 hover:text-red-700 transition-colors"
+                    >
+                      Հեռացնել նկարը
+                    </button>
+                  )}
+                </div>
+                <p className="text-xs text-[#8D8D8D] mt-1">
+                  Նկարը կցուցադրվի բաժնի վերնագրի մոտ
+                </p>
+              </div>
+
               {/* Buttons */}
               <div className="flex justify-end gap-4 pt-6">
                 <button
@@ -491,25 +631,7 @@ export default function RulesEditModal({
             </div>
           )}
 
-          {activeTab === 'section' && (
-            <div className="flex justify-end gap-4 pt-6">
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={loading}
-                className="px-6 py-3 border border-gray-300 text-[#1A2229] rounded-[10px] font-medium hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Չեղարկել
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="px-6 py-3 bg-[#FA8604] text-white rounded-[10px] font-medium hover:bg-[#E67504] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? 'Պահպանվում է...' : 'Պահպանել'}
-              </button>
-            </div>
-          )}
+      
         </div>
       </div>
 
