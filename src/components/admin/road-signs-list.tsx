@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { RoadSign } from '@/app/actions/admin-road-signs';
 import { categoryLabels } from '@/utils/road-signs-utils';
 import RoadSignEditModal from './road-sign-edit-modal';
@@ -32,8 +32,6 @@ import { GripVertical } from 'lucide-react';
 interface RoadSignsListProps {
   signs: RoadSign[];
 }
-
-const ITEMS_PER_PAGE = 20;
 
 interface SortableRowProps {
   sign: RoadSign;
@@ -149,11 +147,8 @@ export default function RoadSignsList({
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const [draggingCategory, setDraggingCategory] = useState<string | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -181,30 +176,16 @@ export default function RoadSignsList({
       );
     }
 
-    // Sort by order within filtered results
+    // Sort by category first, then by order within each category
     return [...filtered].sort((a, b) => {
-      // If same category, sort by order
-      if (a.category === b.category) {
-        return a.order - b.order;
+      // First sort by category
+      if (a.category !== b.category) {
+        return a.category.localeCompare(b.category);
       }
-      // Otherwise maintain category order
-      return 0;
+      // Then sort by order within the same category
+      return a.order - b.order;
     });
   }, [signs, filterCategory, searchTerm]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filterCategory, searchTerm]);
-
-  const totalPages = Math.ceil(filteredSigns.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  
-  // If dragging, show all signs from the same category (for cross-page dragging)
-  // Otherwise, show paginated signs
-  const displaySigns = isDragging && draggingCategory
-    ? filteredSigns.filter((s) => s.category === draggingCategory)
-    : filteredSigns.slice(startIndex, endIndex);
 
   const handleEdit = (sign: RoadSign) => {
     setSelectedSign(sign);
@@ -260,27 +241,16 @@ export default function RoadSignsList({
     }
   };
 
-  const handleDragStart = (event: any) => {
-    const draggedSign = signs.find((s) => s.id === event.active.id);
-    if (draggedSign) {
-      setIsDragging(true);
-      setDraggingCategory(draggedSign.category);
-    }
-  };
-
   const handleDragEnd = async (event: DragEndEvent) => {
-    setIsDragging(false);
-    setDraggingCategory(null);
-
     const { active, over } = event;
 
     if (!over || active.id === over.id) {
       return;
     }
 
-    // Find the dragged sign and target sign
-    const draggedSign = signs.find((s) => s.id === active.id);
-    const targetSign = signs.find((s) => s.id === over.id);
+    // Find the dragged sign and target sign from filtered signs (visible in UI)
+    const draggedSign = filteredSigns.find((s) => s.id === active.id);
+    const targetSign = filteredSigns.find((s) => s.id === over.id);
 
     if (!draggedSign || !targetSign) {
       return;
@@ -291,7 +261,7 @@ export default function RoadSignsList({
       return;
     }
 
-    // Get all signs in the same category, sorted by current order
+    // Get all signs in the same category from the full list, sorted by current order
     const categorySigns = signs
       .filter((s) => s.category === draggedSign.category)
       .sort((a, b) => a.order - b.order);
@@ -331,26 +301,20 @@ export default function RoadSignsList({
 
     // Save to database
     setIsSavingOrder(true);
-    const result = await updateRoadSignsOrder(updates);
-    setIsSavingOrder(false);
-
-    if (!result.success) {
+    try {
+      const result = await updateRoadSignsOrder(updates);
+      if (!result.success) {
+        // Revert on error
+        setSigns(initialSigns);
+        alert(result.error || 'Սխալ է տեղի ունեցել հերթականությունը թարմացնելիս');
+      }
+    } catch (error) {
       // Revert on error
       setSigns(initialSigns);
-      alert(result.error || 'Սխալ է տեղի ունեցել հերթականությունը թարմացնելիս');
-    } else {
-      // After successful reorder, navigate to the page containing the dragged item
-      const newIndex = reorderedCategory.findIndex((s) => s.id === active.id);
-      const newPage = Math.floor(newIndex / ITEMS_PER_PAGE) + 1;
-      if (newPage !== currentPage && newPage <= totalPages) {
-        setCurrentPage(newPage);
-      }
+      alert('Սխալ է տեղի ունեցել հերթականությունը թարմացնելիս');
+    } finally {
+      setIsSavingOrder(false);
     }
-  };
-
-  const handleDragCancel = () => {
-    setIsDragging(false);
-    setDraggingCategory(null);
   };
 
   const getCategoryColor = (category: RoadSign['category']) => {
@@ -425,100 +389,57 @@ export default function RoadSignsList({
         </div>
       </div>
 
-      {displaySigns.length === 0 ? (
+      {filteredSigns.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-[#8D8D8D] text-lg">
-            {filteredSigns.length === 0
-              ? 'Նշաններ չկան'
-              : isDragging
-                ? 'Այս կատեգորիայում նշաններ չկան'
-                : 'Այս էջում նշաններ չկան'}
-          </p>
+          <p className="text-[#8D8D8D] text-lg">Նշաններ չկան</p>
         </div>
       ) : (
-        <>
-          {isDragging && draggingCategory && (
-            <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-[10px]">
-              <p className="text-sm text-blue-800">
-                <strong>Տեղափոխման ռեժիմ:</strong> Բոլոր նշանները{' '}
-                <strong>{categoryLabels[draggingCategory as keyof typeof categoryLabels]}</strong>{' '}
-                կատեգորիայից ցուցադրվում են: Կարող եք տեղափոխել նշանները ցանկացած դիրք:
-              </p>
-            </div>
-          )}
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-4 font-semibold text-[#1A2229]">
-                    Համար
-                  </th>
-                  <th className="text-left py-3 px-4 font-semibold text-[#1A2229]">
-                    Անվանում
-                  </th>
-                  <th className="text-left py-3 px-4 font-semibold text-[#1A2229]">
-                    Կատեգորիա
-                  </th>
-                  <th className="text-left py-3 px-4 font-semibold text-[#1A2229]">
-                    Նկար
-                  </th>
-                  <th className="text-right py-3 px-4 font-semibold text-[#1A2229]">
-                    Գործողություններ
-                  </th>
-                </tr>
-              </thead>
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragStart={handleDragStart}
-                onDragEnd={handleDragEnd}
-                onDragCancel={handleDragCancel}
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-gray-200">
+                <th className="text-left py-3 px-4 font-semibold text-[#1A2229]">
+                  Համար
+                </th>
+                <th className="text-left py-3 px-4 font-semibold text-[#1A2229]">
+                  Անվանում
+                </th>
+                <th className="text-left py-3 px-4 font-semibold text-[#1A2229]">
+                  Կատեգորիա
+                </th>
+                <th className="text-left py-3 px-4 font-semibold text-[#1A2229]">
+                  Նկար
+                </th>
+                <th className="text-right py-3 px-4 font-semibold text-[#1A2229]">
+                  Գործողություններ
+                </th>
+              </tr>
+            </thead>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={filteredSigns.map((s) => s.id)}
+                strategy={verticalListSortingStrategy}
               >
-                <SortableContext
-                  items={displaySigns.map((s) => s.id)}
-                  strategy={verticalListSortingStrategy}
-                >
-                  <tbody>
-                    {displaySigns.map((sign) => (
-                      <SortableRow
-                        key={sign.id}
-                        sign={sign}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                        isDeleting={isDeleting}
-                        getCategoryColor={getCategoryColor}
-                      />
-                    ))}
-                  </tbody>
-                </SortableContext>
-              </DndContext>
-            </table>
-          </div>
-
-          {totalPages > 1 && !isDragging && (
-            <div className="mt-6 flex justify-center gap-2">
-              <button
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="px-4 py-2 border border-gray-300 rounded-[10px] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
-              >
-                Նախորդ
-              </button>
-              <span className="px-4 py-2 text-[#8D8D8D]">
-                {currentPage} / {totalPages}
-              </span>
-              <button
-                onClick={() =>
-                  setCurrentPage((p) => Math.min(totalPages, p + 1))
-                }
-                disabled={currentPage === totalPages}
-                className="px-4 py-2 border border-gray-300 rounded-[10px] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
-              >
-                Հաջորդ
-              </button>
-            </div>
-          )}
-        </>
+                <tbody>
+                  {filteredSigns.map((sign) => (
+                    <SortableRow
+                      key={sign.id}
+                      sign={sign}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                      isDeleting={isDeleting}
+                      getCategoryColor={getCategoryColor}
+                    />
+                  ))}
+                </tbody>
+              </SortableContext>
+            </DndContext>
+          </table>
+        </div>
       )}
 
       {(isEditModalOpen || isCreateModalOpen) && (
