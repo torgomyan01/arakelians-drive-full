@@ -152,6 +152,8 @@ export default function RoadSignsList({
   const [currentPage, setCurrentPage] = useState(1);
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [draggingCategory, setDraggingCategory] = useState<string | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -197,7 +199,12 @@ export default function RoadSignsList({
   const totalPages = Math.ceil(filteredSigns.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const paginatedSigns = filteredSigns.slice(startIndex, endIndex);
+  
+  // If dragging, show all signs from the same category (for cross-page dragging)
+  // Otherwise, show paginated signs
+  const displaySigns = isDragging && draggingCategory
+    ? filteredSigns.filter((s) => s.category === draggingCategory)
+    : filteredSigns.slice(startIndex, endIndex);
 
   const handleEdit = (sign: RoadSign) => {
     setSelectedSign(sign);
@@ -253,7 +260,18 @@ export default function RoadSignsList({
     }
   };
 
+  const handleDragStart = (event: any) => {
+    const draggedSign = signs.find((s) => s.id === event.active.id);
+    if (draggedSign) {
+      setIsDragging(true);
+      setDraggingCategory(draggedSign.category);
+    }
+  };
+
   const handleDragEnd = async (event: DragEndEvent) => {
+    setIsDragging(false);
+    setDraggingCategory(null);
+
     const { active, over } = event;
 
     if (!over || active.id === over.id) {
@@ -320,7 +338,19 @@ export default function RoadSignsList({
       // Revert on error
       setSigns(initialSigns);
       alert(result.error || 'Սխալ է տեղի ունեցել հերթականությունը թարմացնելիս');
+    } else {
+      // After successful reorder, navigate to the page containing the dragged item
+      const newIndex = reorderedCategory.findIndex((s) => s.id === active.id);
+      const newPage = Math.floor(newIndex / ITEMS_PER_PAGE) + 1;
+      if (newPage !== currentPage && newPage <= totalPages) {
+        setCurrentPage(newPage);
+      }
     }
+  };
+
+  const handleDragCancel = () => {
+    setIsDragging(false);
+    setDraggingCategory(null);
   };
 
   const getCategoryColor = (category: RoadSign['category']) => {
@@ -395,23 +425,31 @@ export default function RoadSignsList({
         </div>
       </div>
 
-      {paginatedSigns.length === 0 ? (
+      {displaySigns.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-[#8D8D8D] text-lg">
             {filteredSigns.length === 0
               ? 'Նշաններ չկան'
-              : 'Այս էջում նշաններ չկան'}
+              : isDragging
+                ? 'Այս կատեգորիայում նշաններ չկան'
+                : 'Այս էջում նշաններ չկան'}
           </p>
         </div>
       ) : (
         <>
+          {isDragging && draggingCategory && (
+            <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-[10px]">
+              <p className="text-sm text-blue-800">
+                <strong>Տեղափոխման ռեժիմ:</strong> Բոլոր նշանները{' '}
+                <strong>{categoryLabels[draggingCategory as keyof typeof categoryLabels]}</strong>{' '}
+                կատեգորիայից ցուցադրվում են: Կարող եք տեղափոխել նշանները ցանկացած դիրք:
+              </p>
+            </div>
+          )}
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-4 font-semibold text-[#1A2229] w-12">
-                    {/* Drag handle column */}
-                  </th>
                   <th className="text-left py-3 px-4 font-semibold text-[#1A2229]">
                     Համար
                   </th>
@@ -432,14 +470,16 @@ export default function RoadSignsList({
               <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
+                onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
+                onDragCancel={handleDragCancel}
               >
                 <SortableContext
-                  items={paginatedSigns.map((s) => s.id)}
+                  items={displaySigns.map((s) => s.id)}
                   strategy={verticalListSortingStrategy}
                 >
                   <tbody>
-                    {paginatedSigns.map((sign) => (
+                    {displaySigns.map((sign) => (
                       <SortableRow
                         key={sign.id}
                         sign={sign}
@@ -455,7 +495,7 @@ export default function RoadSignsList({
             </table>
           </div>
 
-          {totalPages > 1 && (
+          {totalPages > 1 && !isDragging && (
             <div className="mt-6 flex justify-center gap-2">
               <button
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
