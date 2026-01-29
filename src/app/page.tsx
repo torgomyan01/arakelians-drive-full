@@ -17,8 +17,6 @@ import { unstable_noStore } from 'next/cache';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export const dynamic = 'force-dynamic';
-
 export const metadata: Metadata = {
   title: 'Arakelians Drive - Ավտոդպրոց Հայաստանում | Վարորդական Իրավունք',
   description:
