@@ -55,6 +55,9 @@ export async function getApprovedStudents(): Promise<StudentWithStats[]> {
       },
     });
 
+    // Revalidate the home page to ensure fresh data
+    revalidatePath('/');
+
     return students;
   } catch (error) {
     console.error('Error fetching approved students:', error);

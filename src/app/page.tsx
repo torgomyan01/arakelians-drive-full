@@ -11,6 +11,7 @@ import { getSetting } from '@/app/actions/admin-settings';
 import { getAllBlogPosts } from '@/app/actions/admin-blogs';
 import { getApprovedStudents } from '@/app/actions/admin-students';
 import { Metadata } from 'next';
+import { unstable_noStore } from 'next/cache';
 
 export const metadata: Metadata = {
   title: 'Arakelians Drive - Ավտոդպրոց Հայաստանում | Վարորդական Իրավունք',
@@ -34,6 +35,9 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
+  // Disable caching for this page to always get fresh data
+  unstable_noStore();
+
   const phoneNumber = (await getSetting('phone_number')) || '+374 77 76-96-68';
   const address = (await getSetting('address')) || 'Ք․ Սիսիան';
   const telegram = await getSetting('telegram');
@@ -41,8 +45,8 @@ export default async function Page() {
 
   // Get latest blog posts
   const blogPosts = await getAllBlogPosts(false);
-  
-  // Get approved students with reviews
+
+  // Get approved students with reviews (always fresh)
   const approvedStudents = await getApprovedStudents();
 
   return (
