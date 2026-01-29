@@ -55,9 +55,6 @@ export async function getApprovedStudents(): Promise<StudentWithStats[]> {
       },
     });
 
-    // Revalidate the home page to ensure fresh data
-    revalidatePath('/');
-
     return students;
   } catch (error) {
     console.error('Error fetching approved students:', error);
@@ -163,6 +160,7 @@ export async function updateStudent(
 
     revalidatePath('/admin/students');
     revalidatePath(`/student/${student.uniqueToken}`);
+    revalidatePath('/');
     return { success: true, student: updatedStudent };
   } catch (error: any) {
     console.error('Error updating student:', error);

@@ -13,6 +13,8 @@ import { getApprovedStudents } from '@/app/actions/admin-students';
 import { Metadata } from 'next';
 import { unstable_noStore } from 'next/cache';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Arakelians Drive - Ավտոդպրոց Հայաստանում | Վարորդական Իրավունք',
   description:
@@ -48,6 +50,8 @@ export default async function Page() {
 
   // Get approved students with reviews (always fresh)
   const approvedStudents = await getApprovedStudents();
+
+  console.log(approvedStudents);
 
   return (
     <MainTemplate>
