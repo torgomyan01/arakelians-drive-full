@@ -13,6 +13,10 @@ import { getApprovedStudents } from '@/app/actions/admin-students';
 import { Metadata } from 'next';
 import { unstable_noStore } from 'next/cache';
 
+// Force dynamic rendering to prevent caching
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {

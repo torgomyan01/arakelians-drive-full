@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, unstable_noStore } from 'next/cache';
 import crypto from 'crypto';
 
 export interface StudentWithStats {
@@ -36,6 +36,9 @@ export async function getAllStudents(): Promise<StudentWithStats[]> {
 }
 
 export async function getApprovedStudents(): Promise<StudentWithStats[]> {
+  // Disable caching to always get fresh data
+  unstable_noStore();
+
   try {
     const students = await prisma.student.findMany({
       where: {
