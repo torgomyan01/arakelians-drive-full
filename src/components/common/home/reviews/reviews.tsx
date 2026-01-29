@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import Swiper from 'swiper';
-import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { StudentWithStats } from '@/app/actions/admin-students';
 import { getImageUrl } from '@/utils/image-utils';
@@ -16,19 +15,14 @@ function Reviews({ students }: ReviewsProps) {
   const [selectedStudent, setSelectedStudent] =
     useState<StudentWithStats | null>(null);
 
-  // Use students if available, otherwise fallback to static reviews
-  const reviewsToShow =
-    students.length > 0 ? students : Array.from({ length: 7 });
-  const isUsingStudents = students.length > 0;
-
   useEffect(() => {
-    if (reviewsToShow.length === 0) return;
+    if (students.length === 0) return;
 
     const swiper = new Swiper('.mySwiper', {
       slidesPerView: 1,
       spaceBetween: 20,
       speed: 800,
-      loop: reviewsToShow.length > 3,
+      loop: students.length > 3,
       centerInsufficientSlides: true,
 
       breakpoints: {
@@ -82,23 +76,23 @@ function Reviews({ students }: ReviewsProps) {
         swiperRef.current.destroy(true, true);
       }
     };
-  }, [reviewsToShow.length]);
+  }, [students.length]);
 
   const handlePrevStudent = useCallback(() => {
-    if (!selectedStudent || !isUsingStudents) return;
+    if (!selectedStudent) return;
     const currentIndex = students.findIndex((s) => s.id === selectedStudent.id);
     const prevIndex =
       currentIndex === 0 ? students.length - 1 : currentIndex - 1;
     setSelectedStudent(students[prevIndex]);
-  }, [selectedStudent, students, isUsingStudents]);
+  }, [selectedStudent, students]);
 
   const handleNextStudent = useCallback(() => {
-    if (!selectedStudent || !isUsingStudents) return;
+    if (!selectedStudent) return;
     const currentIndex = students.findIndex((s) => s.id === selectedStudent.id);
     const nextIndex =
       currentIndex === students.length - 1 ? 0 : currentIndex + 1;
     setSelectedStudent(students[nextIndex]);
-  }, [selectedStudent, students, isUsingStudents]);
+  }, [selectedStudent, students]);
 
   // Handle keyboard navigation and ESC key
   useEffect(() => {
@@ -107,9 +101,9 @@ function Reviews({ students }: ReviewsProps) {
 
       if (e.key === 'Escape') {
         setSelectedStudent(null);
-      } else if (e.key === 'ArrowLeft' && isUsingStudents) {
+      } else if (e.key === 'ArrowLeft') {
         handlePrevStudent();
-      } else if (e.key === 'ArrowRight' && isUsingStudents) {
+      } else if (e.key === 'ArrowRight') {
         handleNextStudent();
       }
     };
@@ -123,90 +117,83 @@ function Reviews({ students }: ReviewsProps) {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'unset';
     };
-  }, [selectedStudent, handlePrevStudent, handleNextStudent, isUsingStudents]);
+  }, [selectedStudent, handlePrevStudent, handleNextStudent]);
 
   return (
     <div className="my-[80px] text-center max-md:my-[40px]">
       <h2 className="global-title">Ավարտված ուսանողական պատմություններ</h2>
 
-      <div className="swiper mySwiper ">
-        <div className="swiper-wrapper py-2">
-          {isUsingStudents
-            ? students.map((student) => (
-                <div className="swiper-slide" key={`student-${student.id}`}>
-                  <div className="bg-white rounded-[50px] overflow-hidden border border-[#FA8604] cursor-pointer transition-all duration-100 hover:scale-[1.01] h-full flex flex-col">
-                    {student.photo ? (
-                      <div className="relative w-full h-[200px] overflow-hidden">
-                        <img
-                          src={getImageUrl(student.photo)}
-                          alt={student.name || 'Student'}
-                          className="object-cover w-full h-full"
-                          onClick={() => setSelectedStudent(student)}
-                        />
-                      </div>
-                    ) : (
-                      <div className="w-full h-[200px] bg-gray-200 flex items-center justify-center">
-                        <i className="fas fa-user text-gray-400 text-4xl"></i>
-                      </div>
-                    )}
-                    <div className="p-4 flex-1 flex flex-col">
-                      <h3 className="font-bold text-[#1A2229] text-lg mb-1">
-                        {student.name || 'Անանուն'}
-                      </h3>
-                      {student.examResult && (
-                        <p className="text-[#FA8604] text-sm mb-2">
-                          Արդյունք: {student.examResult}
-                        </p>
-                      )}
-                      {student.review && (
-                        <p className="text-[#8D8D8D] text-sm line-clamp-3 flex-1">
-                          {student.review}
-                        </p>
-                      )}
+      {students.length === 0 ? (
+        <div className="bg-white rounded-[20px] shadow-[0_0_60px_30px_rgba(0,0,0,0.03)] p-12 text-center">
+          <p className="text-[#8D8D8D] text-lg">
+            Դեռ կարծիքներ չկան: Շուտով կավելանան նոր կարծիքներ:
+          </p>
+        </div>
+      ) : (
+        <div className="swiper mySwiper ">
+          <div className="swiper-wrapper py-2">
+            {students.map((student) => (
+              <div className="swiper-slide" key={`student-${student.id}`}>
+                <div className="bg-white rounded-[50px] overflow-hidden border border-[#FA8604] cursor-pointer transition-all duration-100 hover:scale-[1.01] h-full flex flex-col">
+                  {student.photo ? (
+                    <div className="relative w-full h-[200px] overflow-hidden">
+                      <img
+                        src={getImageUrl(student.photo)}
+                        alt={student.name || 'Student'}
+                        className="object-cover w-full h-full"
+                        onClick={() => setSelectedStudent(student)}
+                      />
                     </div>
+                  ) : (
+                    <div className="w-full h-[200px] bg-gray-200 flex items-center justify-center">
+                      <i className="fas fa-user text-gray-400 text-4xl"></i>
+                    </div>
+                  )}
+                  <div className="p-4 flex-1 flex flex-col">
+                    <h3 className="font-bold text-[#1A2229] text-lg mb-1">
+                      {student.name || 'Անանուն'}
+                    </h3>
+                    {student.examResult && (
+                      <p className="text-[#FA8604] text-sm mb-2">
+                        Արդյունք: {student.examResult}
+                      </p>
+                    )}
+                    {student.review && (
+                      <p className="text-[#8D8D8D] text-sm line-clamp-3 flex-1">
+                        {student.review}
+                      </p>
+                    )}
                   </div>
                 </div>
-              ))
-            : reviewsToShow.map((review, index) => (
-                <div className="swiper-slide" key={`review-${index}`}>
-                  <div className="bg-white rounded-[50px] overflow-hidden border border-[#FA8604] cursor-pointer transition-all duration-100 hover:scale-[1.01]">
-                    <Image
-                      src={`/images/reviews/review-${index + 1}.png`}
-                      alt={`Review ${index + 1}`}
-                      width={400}
-                      height={400}
-                      className="object-cover w-full h-full max-h-[300px]"
-                      onClick={() => {
-                        // Fallback for static images - not implemented for students
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      <div className="inline-flex w-[200px] mt-[30px] flex-jsb-c bg-[#FA8604] rounded-[50px] p-[10px]">
-        <button className="swiper-button-prev-custom w-10 h-10 flex items-center justify-center rounded-full text-white text-xl cursor-pointer">
-          <img
-            src="/images/slider-arrow.svg"
-            alt=""
-            className="rotate-180 w-[15px]"
-          />
-        </button>
+      {students.length > 0 && (
+        <div className="inline-flex w-[200px] mt-[30px] flex-jsb-c bg-[#FA8604] rounded-[50px] p-[10px]">
+          <button className="swiper-button-prev-custom w-10 h-10 flex items-center justify-center rounded-full text-white text-xl cursor-pointer">
+            <img
+              src="/images/slider-arrow.svg"
+              alt=""
+              className="rotate-180 w-[15px]"
+            />
+          </button>
 
-        <div id="paginationText" className="text-white font-bold text-[26px]">
-          1/{reviewsToShow.length}
+          <div id="paginationText" className="text-white font-bold text-[26px]">
+            1/{students.length}
+          </div>
+
+          <button className="swiper-button-next-custom w-10 h-10 flex items-center justify-center rounded-full text-white text-xl cursor-pointer">
+            <img src="/images/slider-arrow.svg" alt="" className="w-[15px]" />
+          </button>
         </div>
-
-        <button className="swiper-button-next-custom w-10 h-10 flex items-center justify-center rounded-full text-white text-xl cursor-pointer">
-          <img src="/images/slider-arrow.svg" alt="" className="w-[15px]" />
-        </button>
-      </div>
+      )}
 
       {/* Student Review Modal */}
       <AnimatePresence>
-        {selectedStudent && isUsingStudents && (
+        {selectedStudent && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -292,9 +279,11 @@ function Reviews({ students }: ReviewsProps) {
                     <h3 className="text-2xl md:text-3xl font-bold text-[#1A2229] mb-2">
                       {selectedStudent.name || 'Անանուն'}
                     </h3>
-                    <p className="text-[#FA8604] text-lg font-semibold">
-                      Քննական արդյունք: {selectedStudent.examResult}
-                    </p>
+                    {selectedStudent.examResult && (
+                      <p className="text-[#FA8604] text-lg font-semibold">
+                        Քննական արդյունք: {selectedStudent.examResult}
+                      </p>
+                    )}
                   </div>
                 </div>
 
