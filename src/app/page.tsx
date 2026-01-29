@@ -9,6 +9,7 @@ import Contact from '@/components/layout/contact/contact';
 import MainTemplate from '@/components/layout/main-template/main-template';
 import { getSetting } from '@/app/actions/admin-settings';
 import { getAllBlogPosts } from '@/app/actions/admin-blogs';
+import { getApprovedStudents } from '@/app/actions/admin-students';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -40,6 +41,9 @@ export default async function Page() {
 
   // Get latest blog posts
   const blogPosts = await getAllBlogPosts(false);
+  
+  // Get approved students with reviews
+  const approvedStudents = await getApprovedStudents();
 
   return (
     <MainTemplate>
@@ -52,7 +56,7 @@ export default async function Page() {
 
         <AboutUs />
 
-        <Reviews />
+        <Reviews students={approvedStudents} />
 
         <FeaturedBlogs posts={blogPosts} />
 

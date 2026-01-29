@@ -264,3 +264,19 @@ model TrafficLawItem {
   @@index([category])
   @@map("traffic_law_items")
 }
+
+model Student {
+  id          Int      @id @default(autoincrement())
+  name        String?  @db.VarChar(255)
+  photo       String?  @db.VarChar(500)
+  examResult  String?  @db.VarChar(255)
+  uniqueToken String   @unique @db.VarChar(100)
+  review      String?  @db.Text
+  isApproved  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([uniqueToken])
+  @@index([isApproved])
+  @@map("students")
+}

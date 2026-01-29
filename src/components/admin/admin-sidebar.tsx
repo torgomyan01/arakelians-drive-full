@@ -34,6 +34,11 @@ const menuItems: MenuItem[] = [
     icon: 'fa-users',
   },
   {
+    label: 'Աշակերտներ',
+    href: '/admin/students',
+    icon: 'fa-graduation-cap',
+  },
+  {
     label: 'Կատեգորիաներ',
     href: '/admin/categories',
     icon: 'fa-folder',
